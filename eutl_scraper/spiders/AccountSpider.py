@@ -1,46 +1,54 @@
 import scrapy
 from scrapy.loader import ItemLoader
-from eutl_scraper.items import AccountItem
+from eutl_scraper.items import AccountItem, ContactItem
 
 class AccountSpider(scrapy.Spider):
-    name = "account"
-    page_number = 1  # zero indexed
+    name = "accounts"
+    next_page_number = 1  # zero indexed
     max_pages = None
     start_urls  = ["https://ec.europa.eu/clima/ets/account.do?languageCode=en&accountHolder=&searchType=account&currentSortSettings=&resultList.currentPageNumber=0&nextList=Next>"]
-    
     
     def parse(self, response):
         # update maximum number of pages (corrected for 0 indexing)
         if not self.max_pages:
             self.max_pages = int(response.css("input[name='resultList.lastPageNumber']").attrib["value"]) - 1
-            self.max_pages = 1
+            #self.max_pages = 0
             
-        # extract table
-        rows = response.css("table#tblAccountSearchResult>tr")#tableAccounts.css("tbody>tr")
-        # get column titles from second row (first is table title)
-        keys = rows[1].css("a::text").getall() + ["Details"]
-        
-        # get table content
-        columns = ["nationalAdministrator", "accountType", "accountHolderName", 
-            "installationID", "companyRegistrationNumber", "mainAddressLine", 
-            "city", "legalEntityIdentifier", "telephone1", "telephone2", 
-            "eMail"]
-        for r in rows[2:]:
-            l = ItemLoader(item = AccountItem(), selector=r, response=response)
-            l.context['response'] = response
-            for i, col in enumerate(columns):
-                print(col, "td:nth-child(%i)>span.classictext::text" % i)
-                l.add_css(col, "td:nth-child(%i)>span.classictext::text" % i)
-            l.add_css("details", "a.listlink::attr(href)")
-            #fields = list(map(lambda x: x.strip(), r.css("span.classictext::text").getall()))
-            #fields.append(r.css("a.listlink").attrib["href"])
-            yield l.load_item()
-            
-        next_page = "https://ec.europa.eu/clima/ets/account.do?languageCode=en&accountHolder=&searchType=account&currentSortSettings=&resultList.currentPageNumber=%d&nextList=Next>" % self.page_number
-        if self.page_number <= self.max_pages:
-            self.page_number += 1
+        # extract links to detail pages from table
+        for r in response.css("table#tblAccountSearchResult>tr")[2:]:
+            url = response.urljoin(r.css("a.listlink").attrib["href"])
+            yield response.follow(url, callback=self.parse_accountDetails)
+           
+        # navigate to next page of account overview 
+        next_page = "https://ec.europa.eu/clima/ets/account.do?languageCode=en&accountHolder=&searchType=account&currentSortSettings=&resultList.currentPageNumber=%d&nextList=Next>" % self.next_page_number
+        if self.next_page_number <= self.max_pages:
+            self.next_page_number += 1
             yield response.follow(next_page, callback=self.parse)
             
     def parse_accountDetails(self, response):
-        row  = response.css("table#tblAccountGeneralInfo>tr:nth-child(3)")   
-        l = ItemLoader(item = AccountItem(), selector=row, response=response)
+        # parse account details
+        l = ItemLoader(item = AccountItem(), response=response)
+        l.add_css("accountID", "input[name='accountID']::attr(value)")
+        l.add_css("registryCode", "input[name='registryCode']::attr(value)")
+        l.add_css("accountType", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(1)>span.classictext::text")
+        l.add_css("registry", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(2)>span.classictext::text")
+        l.add_css("installationID", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(3)>a>span::text")
+        l.add_css("installationURL", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(3)>a::attr(href)")
+        l.add_css("accountHolderName", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(4)>span.classictext::text")
+        l.add_css("status", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(5)>span.classictext::text")
+        l.add_css("openingDate", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(6)>span.classictext::text")
+        l.add_css("closingDate", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(7)>span.classictext::text")
+        l.add_css("companyRegistrationNumber", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(8)>span.classictext::text")
+        yield l.load_item()
+        
+        # parse contact details
+        columns = ["accountID", "contactType", "name", "legalEntityIdentifier",
+                   "mainAddress", "secondaryAddress", "postalCode", "country",
+                   "telephone1", "telephone2", "eMail"]
+        l = ItemLoader(item = ContactItem(), response=response) 
+        l.add_css("accountID", "input[name='accountID']::attr(value)")      
+        for i, c in enumerate(columns[1:]):
+            l.add_css(c, "table#tblAccountContactInfo>tr:nth-child(3)>td:nth-child(%d)>span.classictext::text" % (i+1)) 
+        yield l.load_item()    
+        
+        
