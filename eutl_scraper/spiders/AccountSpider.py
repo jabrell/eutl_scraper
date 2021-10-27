@@ -12,8 +12,7 @@ class AccountSpider(scrapy.Spider):
         # update maximum number of pages (corrected for 0 indexing)
         if not self.max_pages:
             self.max_pages = int(response.css("input[name='resultList.lastPageNumber']").attrib["value"]) - 1
-            #self.max_pages = 0
-            
+
         # extract links to detail pages from table
         for r in response.css("table#tblAccountSearchResult>tr")[2:]:
             url = response.urljoin(r.css("a.listlink").attrib["href"])
@@ -28,6 +27,7 @@ class AccountSpider(scrapy.Spider):
     def parse_accountDetails(self, response):
         # parse account details
         l = ItemLoader(item = AccountItem(), response=response)
+        l.add_value('accountURL', response.url)
         l.add_css("accountID", "input[name='accountID']::attr(value)")
         l.add_css("registryCode", "input[name='registryCode']::attr(value)")
         l.add_css("accountType", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(1)>span.classictext::text")
@@ -46,6 +46,7 @@ class AccountSpider(scrapy.Spider):
                    "mainAddress", "secondaryAddress", "postalCode", "country",
                    "telephone1", "telephone2", "eMail"]
         l = ItemLoader(item = ContactItem(), response=response) 
+        l.add_value('accountURL', response.url)
         l.add_css("accountID", "input[name='accountID']::attr(value)")      
         for i, c in enumerate(columns[1:]):
             l.add_css(c, "table#tblAccountContactInfo>tr:nth-child(3)>td:nth-child(%d)>span.classictext::text" % (i+1)) 

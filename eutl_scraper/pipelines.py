@@ -3,6 +3,7 @@ from itemadapter import ItemAdapter
 from eutl_scraper.items import AccountItem, ContactItem
 from eutl_scraper.own_settings import DIR_PARSED
 
+
 class EutlScraperPipeline:
     accounts = []
     accountKeys = []
@@ -24,13 +25,13 @@ class EutlScraperPipeline:
     
     def close_spider(self, spider):
         # export account data 
-        with open(DIR_PARSED + 'accounts.csv', 'w', newline='')  as output_file:
+        with open(DIR_PARSED + 'accounts.csv', 'w', newline='', encoding="utf-8")  as output_file:
             dict_writer = csv.DictWriter(output_file, self.accountKeys)
             dict_writer.writeheader()
             dict_writer.writerows(self.accounts)       
             
         # export contact data 
-        with open(DIR_PARSED + 'contacts.csv', 'w', newline='')  as output_file:
+        with open(DIR_PARSED + 'contacts.csv', 'w', newline='', encoding="utf-8")  as output_file:
             dict_writer = csv.DictWriter(output_file, self.contactKeys)
             dict_writer.writeheader()
             dict_writer.writerows(self.contacts)

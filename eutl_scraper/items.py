@@ -9,6 +9,7 @@ def convert_relative_url(url, loader_context):
     return loader_context['response'].urljoin(url)
 
 class AccountItem(scrapy.Item):
+    accountURL = scrapy.Field(output_processor=TakeFirst())
     accountID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     accountType = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst() )
     registryCode= scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
@@ -24,6 +25,7 @@ class AccountItem(scrapy.Item):
 
 
 class ContactItem(scrapy.Item):
+    accountURL = scrapy.Field(output_processor=TakeFirst())
     accountID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     contactType = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     name = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
