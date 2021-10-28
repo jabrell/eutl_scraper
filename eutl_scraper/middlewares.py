@@ -7,7 +7,26 @@ from scrapy import signals
 
 # useful for handling different item types with a single interface
 from itemadapter import is_item, ItemAdapter
+from scrapy.downloadermiddlewares.retry import RetryMiddleware
+from scrapy.utils.response import response_status_message
+import time
 
+class CustomRetryMiddleware(RetryMiddleware):
+    # Custom middleware to retry if empty responses and implement
+    # 1 second delay for retry
+    def process_response(self, request, response, spider):
+        if request.meta.get('dont_retry', False):
+            return response
+        
+        if response.status in self.retry_http_codes:
+            reason = response_status_message(response.status)
+            time.sleep(1)
+            return self._retry(request, reason, spider) or response
+        if b"Service temporarily unavailable. Please try again later." in response.body:
+            time.sleep(1)
+            reason = response_status_message("Server is timed outed")
+            return self._retry(request, reason, spider) or response
+        return response
 
 class EutlScraperSpiderMiddleware:
     # Not all methods need to be defined. If a method is not defined,
