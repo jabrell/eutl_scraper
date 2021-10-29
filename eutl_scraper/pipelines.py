@@ -1,7 +1,7 @@
 import csv
 from itemadapter import ItemAdapter
 from eutl_scraper.items import AccountItem, ContactItem
-from eutl_scraper.items import InstallationItem, ComplianceItem
+from eutl_scraper.items import InstallationItem, ComplianceItem, SurrenderingDetailsItem
 from eutl_scraper.own_settings import DIR_PARSED
 
 
@@ -10,7 +10,8 @@ class EutlScraperPipeline:
         {"item": AccountItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'accounts.csv'},
         {"item": ContactItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'contacts.csv'},
         {"item": InstallationItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'installations.csv'},
-        {"item": ComplianceItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'compliance.csv'}
+        {"item": ComplianceItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'compliance.csv'},
+        {"item": SurrenderingDetailsItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'surrendering.csv'}
     ]
 
     def process_item(self, item, spider):

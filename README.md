@@ -11,7 +11,7 @@ pip install -r requirements.txt
 ```
 
 # Scraping the data 
-To scrape the account data including installation details and compliance informations, run the spider "accounts" from the command line ensuring that you are in the upper folder (the one with data and eutl_scraper sub-folder). Data will be available under *data/parsed* (you can change this in own_settings.py):
+To scrape the account data (including installation details, compliance informations, and surrendered units details) run the spider "accounts" from the command line ensuring that you are in the upper folder (the one with data and eutl_scraper sub-folder). Data will be available under *data/parsed* (you can change this in own_settings.py):
 ```
 scrapy crawl accounts -L INFO
 ```

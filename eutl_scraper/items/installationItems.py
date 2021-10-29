@@ -13,20 +13,6 @@ def get_compliance_status_update(x):
         return True
     return False
 
-def get_allocation10c(x):
-    spans = x.css("span.classictext").get_all()
-    if spans:
-        for span in spans:
-            sup = span.css("sub::text")
-            if sup and sup.strip() == "****":
-                return "YES"
-    
-def get_allocation(x):
-    return 1
-
-def get_allocationNewEntrance(x):
-    return 1
-
 class InstallationItem(scrapy.Item):
     registryCode =  scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     installationID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
@@ -72,4 +58,25 @@ class ComplianceItem(scrapy.Item):
     complianceCodeUpdated = scrapy.Field(input_processor=MapCompose(strip_values, get_compliance_status_update), output_processor=TakeFirst())
     installationURL = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     reportedInSystem = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+
+
+class SurrenderingDetailsItem(scrapy.Item):
+    installationID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    accountID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    registryCode = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    reportedInSystem = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+
+    originatingRegistry = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    unitType = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    amount = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    originalCommitmentPeriod = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    applicableCommitmentPeriod = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    year = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    lulucfActivity = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    projectID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    track = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    expiryDate = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    installationURL = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    surrenderingURL = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+
     

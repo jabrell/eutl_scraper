@@ -20,7 +20,6 @@ class CustomRetryMiddleware(RetryMiddleware):
         
         if response.status in self.retry_http_codes:
             reason = response_status_message(response.status)
-            time.sleep(1)
             return self._retry(request, reason, spider) or response
         if b"Service temporarily unavailable. Please try again later." in response.body:
             time.sleep(1)

@@ -1,9 +1,7 @@
-from inspect import isawaitable
 import scrapy
 from scrapy.loader import ItemLoader
 from eutl_scraper.items import AccountItem, ContactItem
-from eutl_scraper.items import InstallationItem, ComplianceItem
-import sys
+from eutl_scraper.items import InstallationItem, ComplianceItem, SurrenderingDetailsItem
 
 class AccountSpider(scrapy.Spider):
     name = "accounts"
@@ -17,6 +15,7 @@ class AccountSpider(scrapy.Spider):
         # update maximum number of pages (corrected for 0 indexing)
         if not self.max_pages:
             self.max_pages = int(response.css("input[name='resultList.lastPageNumber']").attrib["value"]) - 1
+            # self.max_pages = 0
 
         # extract links to detail pages from table
         for r in response.css("table#tblAccountSearchResult>tr")[2:]:
@@ -106,7 +105,7 @@ class AccountSpider(scrapy.Spider):
         # thus, there might be two compliance tables for aircrafts
         complianceTables = tables[1].css("tr>td>div>table")
         etsSystems = ["EUETS", "CHETS"]
-        for i, table in enumerate(complianceTables):  
+        for i, table in enumerate(complianceTables): 
             rows = table.css("tr")
             for row in rows[2:]:
                 try:
@@ -135,3 +134,37 @@ class AccountSpider(scrapy.Spider):
                 l.add_css("complianceCode", "td:nth-child(8)>span.classictext::text")
                 l.add_css("complianceCodeUpdated", "td:nth-child(8)>span.classictext::text")
                 yield l.load_item()
+
+            # Extract surrendering details but not for the CH table (links to same information)
+            if i > 0:
+                continue
+            links = table.css("a.listlink")
+            for link in links:
+                text = link.css("span::text").get().strip()
+                if text.startswith("Details on Surrendered Units"):
+                    url = response.urljoin(link.attrib["href"])
+                    yield response.follow(url, callback=self.parse_surrendered_details, 
+                                meta={"accountID": response.meta.get("accountID"), 
+                                        "registryCode": response.meta.get("registryCode"),
+                                        "installationID": response.meta.get("installationID"),
+                                        "reportedInSystem": etsSystems[i],
+                                        "installationURL": response.url})
+
+    def parse_surrendered_details(self, response):
+        rows= response.css("table#tblChildDetails>tr>td>table>tr>td>div>table>tr") 
+        cols = ["originatingRegistry", "unitType", "amount", "originalCommitmentPeriod",
+                "applicableCommitmentPeriod", "year", "lulucfActivity", "projectID",
+                "expiryDate", "track"]
+
+        for row in rows[2:]:
+            l = ItemLoader(SurrenderingDetailsItem(), selector=row, response=response)
+            l.add_value("installationID", response.meta.get("installationID"))
+            l.add_value("installationURL", response.meta.get("installationURL"))
+            l.add_value("surrenderingURL", response.url)
+            l.add_value("accountID", response.meta.get("accountID"))
+            l.add_value("registryCode", response.meta.get("registryCode"))
+            l.add_value("reportedInSystem", response.meta.get("reportedInSystem"))
+            for i, c in enumerate(cols):
+                l.add_css(c, "td:nth-child(%d)>span.classictext::text" % (i+1)) 
+            yield l.load_item()
+        return
