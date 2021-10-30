@@ -2,8 +2,14 @@ import scrapy
 from itemloaders.processors import TakeFirst, MapCompose
 from ._utils import strip_values, convert_relative_url
 
+def clean_account_name(x):
+    x = x.strip()
+    x = x.replace("Account Information - ", "")
+    return x
+
 class AccountItem(scrapy.Item):
     accountID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    accountName = scrapy.Field(input_processor=MapCompose(clean_account_name), output_processor=TakeFirst())
     accountType = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst() )
     registryCode= scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     registry = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
@@ -31,3 +37,7 @@ class ContactItem(scrapy.Item):
     telephone2 = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     eMail = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())    
     accountURL = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+
+class AccountIDMapItem(scrapy.Item):
+    accountID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    accountIdentifier = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())   

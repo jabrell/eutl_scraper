@@ -15,7 +15,6 @@ class AccountSpider(scrapy.Spider):
         # update maximum number of pages (corrected for 0 indexing)
         if not self.max_pages:
             self.max_pages = int(response.css("input[name='resultList.lastPageNumber']").attrib["value"]) - 1
-            # self.max_pages = 0
 
         # extract links to detail pages from table
         for r in response.css("table#tblAccountSearchResult>tr")[2:]:
@@ -33,13 +32,14 @@ class AccountSpider(scrapy.Spider):
         l = ItemLoader(item = AccountItem(), response=response)
         l.add_value('accountURL', response.url)
         l.add_css("accountID", "input[name='accountID']::attr(value)")
+        l.add_css("accountName", "font.bordertbheadfont::text")
         l.add_css("registryCode", "input[name='registryCode']::attr(value)")
         l.add_css("accountType", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(1)>span.classictext::text")
         l.add_css("registry", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(2)>span.classictext::text")
         l.add_css("installationID", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(3)>a>span::text")
         l.add_css("installationURL", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(3)>a::attr(href)")
         l.add_css("accountHolderName", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(4)>span.classictext::text")
-        l.add_css("status", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(5)>span.cl    assictext::text")
+        l.add_css("status", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(5)>span.classictext::text")
         l.add_css("openingDate", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(6)>span.classictext::text")
         l.add_css("closingDate", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(7)>span.classictext::text")
         l.add_css("companyRegistrationNumber", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(8)>span.classictext::text")
@@ -86,10 +86,10 @@ class AccountSpider(scrapy.Spider):
         # Installation details: installation details
         if isAircraft:
             cols = ["installationID", "ec7482009ID", "monitoringPlanId", "monitoringPlanFirstYear", 
-                    "monitoringPlanExpiry", "susidiary", "parent", "eprtrID", "icaoID","firstYearOfEmissions", 
+                    "monitoringPlanExpiry", "subsidiary", "parent", "eprtrID", "icaoID","firstYearOfEmissions", 
                     "lastYearOfEmissions"]
         else:
-            cols = ["installationID", "name", "permitID", "permitEntryDate", "permitExpiry", "susidiary", "parent", 
+            cols = ["installationID", "name", "permitID", "permitEntryDate", "permitExpiry", "subsidiary", "parent", 
                     "eprtrID", "firstYearOfEmissions", "lastYearOfEmissions"]
         for i, c in enumerate(cols[1:]):
             l.add_css(c, "tr>td>table:nth-child(1)>tr:nth-child(3)>td:nth-child(%i)>span.classictext::text" % (i+2))
@@ -130,7 +130,8 @@ class AccountSpider(scrapy.Spider):
                         l.add_value("allocationFree", td.css("::text").get())   
                 l.add_css("verified", "td:nth-child(4)>span.classictext::text")
                 l.add_css("surrendered", "td:nth-child(5)>span.classictext::text")
-                l.add_css("verifiedCummulative", "td:nth-child(7)>span.classictext::text")
+                l.add_css("surrenderedCumulative", "td:nth-child(6)>span.classictext::text")
+                l.add_css("verifiedCumulative", "td:nth-child(7)>span.classictext::text")
                 l.add_css("complianceCode", "td:nth-child(8)>span.classictext::text")
                 l.add_css("complianceCodeUpdated", "td:nth-child(8)>span.classictext::text")
                 yield l.load_item()
