@@ -30,4 +30,5 @@ Twisted==21.7.0
 twisted-iocpsupport==1.0.2
 typing-extensions==3.10.0.2
 w3lib==1.22.0
+wheel==0.37.1
 zope.interface==5.4.0
