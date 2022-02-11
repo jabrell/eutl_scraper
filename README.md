@@ -25,3 +25,6 @@ The download transaction data run
 ```
 scrapy crawl transactions -L INFO
 ```
+# Considerations for Unix systems
+To run the eutl scraper on macOS or Linux, delete the entry for the package "twisted-iocpsupport".
+The package twisted-iocpsupport provides bindings to the Windows "I/O Completion Ports" APIs. These are Windows-only APIs.
