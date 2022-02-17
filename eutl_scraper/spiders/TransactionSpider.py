@@ -1,6 +1,7 @@
 import scrapy 
 from scrapy.loader import ItemLoader
 from eutl_scraper.items import TransactionItem, TransactionBlockItem, AccountIDMapItem
+import sys 
 
 class TransactionSpider(scrapy.Spider):
     name = "transactions"
@@ -22,7 +23,7 @@ class TransactionSpider(scrapy.Spider):
                 "transferringRegistry", "transferringAccountType", "transferringAccountName", 
                 "transferringAccountIdentifier", "transferringAccountHolderName", 
                 "acquiringRegistry", "acquiringAccountType", "acquiringAccountName", 
-                "acquiringAccountIdentifier", "acquiringAccountIdentifierquiringAccountHolderName", 
+                "acquiringAccountIdentifier", "acquiringAccountHolderName", 
                 "amount"]
         for row in rows[2:]:
             l = ItemLoader(item=TransactionItem(), selector=row, response=response)

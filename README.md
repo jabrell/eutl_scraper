@@ -14,13 +14,13 @@ pip install -r requirements.txt
 
 # Scraping the data
 
-To scrape the account data (including installation details, compliance informations, and surrendered units details) run the spider "accounts" from the command line ensuring that you are in the upper folder (the one with data and eutl*scraper sub-folder). Data will be available under \_data/parsed* (you can change this in own_settings.py):
+To scrape the account data (including installation details, compliance informations, and surrendered units details) run the spider "accounts" from the command line ensuring that you are in the upper folder (the one with data and eutl\_scraper sub-folder). Data will be available under \_data/parsed (you can change this in own_settings.py). The whole process takes about 2 hours:
 
 ```
 scrapy crawl accounts -L INFO
 ```
 
-The download transaction data run
+Each transaction block is downloaded together with the main transaction information and the linking between account identifiers used in in the transaction and those used in the account data. A complete extraction takes about 12 hours:
 
 ```
 scrapy crawl transactions -L INFO

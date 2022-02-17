@@ -16,7 +16,7 @@ class TransactionItem(scrapy.Item):
     acquiringAccountType = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     acquiringAccountName = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     acquiringAccountIdentifier = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
-    acquiringAccountIdentifierquiringAccountHolderName = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())    
+    acquiringAccountHolderName = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())    
     amount = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
 
 class TransactionBlockItem(scrapy.Item):
