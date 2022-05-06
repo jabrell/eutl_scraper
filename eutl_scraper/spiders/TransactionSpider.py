@@ -1,7 +1,10 @@
 import scrapy 
 from scrapy.loader import ItemLoader
 from eutl_scraper.items import TransactionItem, TransactionBlockItem, AccountIDMapItem
+import urllib.parse
+import csv, os
 import sys 
+
 
 class TransactionSpider(scrapy.Spider):
     name = "transactions"
@@ -9,8 +12,51 @@ class TransactionSpider(scrapy.Spider):
     max_pages = None
     accountIdentifiersMapped = []
     # 30000
-    start_urls  = ["https://ec.europa.eu/clima/ets/transaction.do?languageCode=en&startDate=&endDate=&transactionStatus=4&fromCompletionDate=&toCompletionDate=&transactionID=&transactionType=-1&suppTransactionType=-1&originatingRegistry=-1&destinationRegistry=-1&originatingAccountType=-1&destinationAccountType=-1&originatingAccountIdentifier=&destinationAccountIdentifier=&originatingAccountHolder=&destinationAccountHolder=&currentSortSettings=&resultList.currentPageNumber=0&nextList=Next>"]
-    
+    start_urls  = []
+    url_transasction_overview = "https://ec.europa.eu/clima/ets/transaction.do"
+    params_transaction_search = {}
+
+    def __init__(self, start_date="", end_date="", fn_accountIdentifiers=None, **kwargs):
+        """
+        :param start_date: <str> start date for transaction search
+                            has to be string of format "dd/mm/yyyy"
+        :param end_date: <str> end date for transaction search
+                            has to be string of format "dd/mm/yyyy"
+        :param fn_accountIdentifiers: <str> file name of already existing account identifiers
+        """
+        self.params_transaction_search = {
+            "languageCode": "en",
+            "startDate": "%s" % start_date,
+            "endDate": "%s" % end_date,
+            "transactionStatus": "4",
+            "fromCompletionDate": "",
+            "toCompletionDate": "",
+            "transactionID": "",
+            "transactionType": -1,
+            "suppTransactionType": -1,
+            "originatingRegistry": -1,
+            "destinationRegistry": -1,
+            "originatingAccountType": -1,
+            "destinationAccountType": -1,
+            "originatingAccountIdentifier": "",
+            "destinationAccountIdentifier": "",
+            "originatingAccountHolder": "",
+            "destinationAccountHolder": "",
+            "currentSortSettings": "",
+            "resultList.currentPageNumber": "0",
+            "nextList": "Next>"
+        }
+        self.start_urls = [f"{self.url_transasction_overview}?{urllib.parse.urlencode(self.params_transaction_search)}"]
+        
+        # update the list of already existing account identifiers
+        if fn_accountIdentifiers is not None and os.path.isfile(fn_accountIdentifiers) :
+            with open(fn_accountIdentifiers, mode='r') as csv_file:
+                csv_reader = csv.DictReader(csv_file)
+                for row in csv_reader:
+                    self.accountIdentifiersMapped.append(row["accountIdentifier"])
+        super().__init__(**kwargs)  # python3        
+
+
     def parse(self, response):
         # update maximum number of pages (corrected for 0 indexing)
         if not self.max_pages:
@@ -37,7 +83,9 @@ class TransactionSpider(scrapy.Spider):
             yield l.load_item()
 
         # navigate to next page of transaction overview 
-        next_page = "https://ec.europa.eu/clima/ets/transaction.do?languageCode=en&startDate=&endDate=&transactionStatus=4&fromCompletionDate=&toCompletionDate=&transactionID=&transactionType=-1&suppTransactionType=-1&originatingRegistry=-1&destinationRegistry=-1&originatingAccountType=-1&destinationAccountType=-1&originatingAccountIdentifier=&destinationAccountIdentifier=&originatingAccountHolder=&destinationAccountHolder=&currentSortSettings=&resultList.currentPageNumber=%d&nextList=Next>" % self.next_page_number
+        self.params_transaction_search["resultList.currentPageNumber"] = self.next_page_number
+        next_page = f"{self.url_transasction_overview}?{urllib.parse.urlencode(self.params_transaction_search)}"
+        #"https://ec.europa.eu/clima/ets/transaction.do?languageCode=en&startDate=&endDate=&transactionStatus=4&fromCompletionDate=&toCompletionDate=&transactionID=&transactionType=-1&suppTransactionType=-1&originatingRegistry=-1&destinationRegistry=-1&originatingAccountType=-1&destinationAccountType=-1&originatingAccountIdentifier=&destinationAccountIdentifier=&originatingAccountHolder=&destinationAccountHolder=&currentSortSettings=&resultList.currentPageNumber=%d&nextList=Next>" % self.next_page_number
         if self.next_page_number <= self.max_pages:
             self.next_page_number += 1
             yield response.follow(next_page, callback=self.parse)
@@ -69,10 +117,10 @@ class TransactionSpider(scrapy.Spider):
             if url:
                 url = response.urljoin(url)
                 idx = row.css("td:nth-child(6)>span.classictext::text").get().strip()
-                if not idx in self.accountIdentifiersMapped:
+                if idx not in self.accountIdentifiersMapped:
                     self.accountIdentifiersMapped.append(idx)
                     yield response.follow(url, callback=self.get_account_id_map, 
-                                meta={"accountIdentifier": idx })
+                                          meta={"accountIdentifier": idx })
             # link and name to acquiring account
             l.add_css("acquiringAccountName", "td:nth-child(7)>span.resultlink::text")
             l.add_css("acquiringAccountURL", "td:nth-child(7)>a.resultlink::attr(href)")
@@ -80,10 +128,10 @@ class TransactionSpider(scrapy.Spider):
             if url:
                 url = response.urljoin(url)
                 idx = row.css("td:nth-child(8)>span.classictext::text").get().strip()
-                if not idx in self.accountIdentifiersMapped:
+                if idx not in self.accountIdentifiersMapped:
                     self.accountIdentifiersMapped.append(idx)
                     yield response.follow(url, callback=self.get_account_id_map, 
-                                meta={"accountIdentifier": idx })          
+                                          meta={"accountIdentifier": idx })     
             l.add_css("acquiringAccountIdentifier", "td:nth-child(8)>span.classictext::text")
             l.add_css("lulucfActivity", "td:nth-child(9)>span.classictext::text")
             l.add_css("projectID", "td:nth-child(10)>span.classictext::text")
