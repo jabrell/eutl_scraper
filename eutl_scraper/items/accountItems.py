@@ -19,6 +19,7 @@ class AccountItem(scrapy.Item):
     status = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     openingDate = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     closingDate = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    commitmentPeriod = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     companyRegistrationNumber = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     accountURL = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     
@@ -37,6 +38,7 @@ class ContactItem(scrapy.Item):
     telephone2 = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     eMail = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())    
     accountURL = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+
 
 class AccountIDMapItem(scrapy.Item):
     accountID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())

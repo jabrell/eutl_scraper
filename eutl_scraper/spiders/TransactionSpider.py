@@ -75,11 +75,13 @@ class TransactionSpider(scrapy.Spider):
             l = ItemLoader(item=TransactionItem(), selector=row, response=response)
             for i, c in enumerate(cols):
                 transactionID = row.css("td:nth-child(1)>span.classictext::text").get().strip()
+                transactionDate = row.css("td:nth-child(2)>span.classictext::text").get().strip()
                 l.add_css(c, "td:nth-child(%d)>span.classictext::text" % (i+1))
                 # extraction of link to transaction blocks and parse page
                 url = response.urljoin(row.css("a.listlink::attr(href)").get())
                 yield response.follow(url, callback=self.parse_transaction_blocks, 
-                                      meta={"transactionID": transactionID} )
+                                      meta={"transactionID": transactionID, 
+                                            "transactionDate": "transactionDate"} )
             yield l.load_item()
 
         # navigate to next page of transaction overview 
@@ -88,6 +90,8 @@ class TransactionSpider(scrapy.Spider):
         #"https://ec.europa.eu/clima/ets/transaction.do?languageCode=en&startDate=&endDate=&transactionStatus=4&fromCompletionDate=&toCompletionDate=&transactionID=&transactionType=-1&suppTransactionType=-1&originatingRegistry=-1&destinationRegistry=-1&originatingAccountType=-1&destinationAccountType=-1&originatingAccountIdentifier=&destinationAccountIdentifier=&originatingAccountHolder=&destinationAccountHolder=&currentSortSettings=&resultList.currentPageNumber=%d&nextList=Next>" % self.next_page_number
         if self.next_page_number <= self.max_pages:
             self.next_page_number += 1
+            if (self.next_page_number-1) % 100 == 0:
+                print("Process transaction overview %d of %d" % (self.next_page_number, self.max_pages))
             yield response.follow(next_page, callback=self.parse)
             
     def parse_transaction_blocks(self, response):
@@ -100,6 +104,7 @@ class TransactionSpider(scrapy.Spider):
             l = ItemLoader(item=TransactionBlockItem(), selector=row, response=response)
             # create identifiers
             l.add_value("transactionID", response.meta["transactionID"])
+            l.add_value("transactionDate", response.meta["transactionID"])
             l.add_value("transactionBlock", str(block_number))
             block_number += 1
             #l.add_value("transactionURL", response.url)

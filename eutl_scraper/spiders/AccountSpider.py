@@ -25,6 +25,8 @@ class AccountSpider(scrapy.Spider):
         next_page = "https://ec.europa.eu/clima/ets/account.do?languageCode=en&accountHolder=&searchType=account&currentSortSettings=&resultList.currentPageNumber=%d&nextList=Next>" % self.next_page_number
         if self.next_page_number <= self.max_pages:
             self.next_page_number += 1
+            if self.next_page_number % 100 == 0:
+                print("Process account overview page %d of %d" % (self.next_page_number, self.max_pages))
             yield response.follow(next_page, callback=self.parse)
             
     def parse_accountDetails(self, response):
@@ -42,7 +44,8 @@ class AccountSpider(scrapy.Spider):
         l.add_css("status", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(5)>span.classictext::text")
         l.add_css("openingDate", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(6)>span.classictext::text")
         l.add_css("closingDate", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(7)>span.classictext::text")
-        l.add_css("companyRegistrationNumber", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(8)>span.classictext::text")
+        l.add_css("commitmentPeriod", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(8)>span.classictext::text")
+        l.add_css("companyRegistrationNumber", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(9)>span.classictext::text")
         yield l.load_item()
         
         # parse contact details
@@ -124,7 +127,7 @@ class AccountSpider(scrapy.Spider):
                     stars = td.css("sup::text").get()
                     if stars == "****":
                         l.add_value("allocation10c", td.css("::text").get().strip())
-                    elif stars == "****Ü":
+                    elif stars == "*****":
                         l.add_value("allocationNewEntrance", td.css("::text").get().strip())   
                     else:
                         l.add_value("allocationFree", td.css("::text").get())   
@@ -155,7 +158,7 @@ class AccountSpider(scrapy.Spider):
         rows= response.css("table#tblChildDetails>tr>td>table>tr>td>div>table>tr") 
         cols = ["originatingRegistry", "unitType", "amount", "originalCommitmentPeriod",
                 "applicableCommitmentPeriod", "year", "lulucfActivity", "projectID",
-                "expiryDate", "track"]
+                 "track", "expiryDate"]
 
         for row in rows[2:]:
             l = ItemLoader(SurrenderingDetailsItem(), selector=row, response=response)

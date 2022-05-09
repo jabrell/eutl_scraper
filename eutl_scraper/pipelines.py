@@ -26,18 +26,17 @@ class EutlScraperPipeline:
             if isinstance(item, it["item"]):
                 adapter = dict(ItemAdapter(item))
                 it["rows"].append(adapter)
-                it["header"] = list(set(it["header"] + list(adapter.keys())))
+                it["header"] = [k for k in item.fields.keys()]
 
     def close_spider(self, spider):
         for it in self.itemsToProcess:
             if len(it["rows"]) == 0:
                 continue
-            
             # check whether we allow to append to existing files
-            if os.path.isfile(it["output_file_name"]) and it["appendExisting"]:
+            if os.path.isfile(it["output_file_name"]) and it["appendExisting"]:              
+                # append to existing file
                 with open(it["output_file_name"], "a", newline="", encoding="utf-8") as output_file:
                     dict_writer = csv.DictWriter(output_file, it["header"])
-                    #dict_writer.writeheader()
                     dict_writer.writerows(it["rows"])
             else:
                 with open(it["output_file_name"], "w", newline="", encoding="utf-8") as output_file:

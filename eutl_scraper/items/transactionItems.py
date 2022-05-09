@@ -21,6 +21,7 @@ class TransactionItem(scrapy.Item):
 
 class TransactionBlockItem(scrapy.Item):
     transactionID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    transactionDate = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     transactionBlock = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     transactionURL = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     originatingRegistry = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
