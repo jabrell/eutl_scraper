@@ -29,7 +29,15 @@ class AccountSpider(scrapy.Spider):
                 print("Process account overview page %d of %d" % (self.next_page_number, self.max_pages))
             yield response.follow(next_page, callback=self.parse)
             
-    def parse_accountDetails(self, response):
+    def parse_accountDetails(self, response):  
+        # determine correct field for company registration and commitment period field
+        td_commitmentPeriod = 8
+        td_companyRegistration = 9
+        for i, f in enumerate(response.css("table#tblAccountGeneralInfo>tr:nth-child(2)>td>span.titlelist::text").getall()):  
+            if f.strip() == "Company Registration No":
+                td_companyRegistration = i + 1
+            elif f.strip() == "Commitment Period":
+                td_commitmentPeriod = i + 1
         # parse account details
         l = ItemLoader(item = AccountItem(), response=response)
         l.add_value('accountURL', response.url)
@@ -44,8 +52,8 @@ class AccountSpider(scrapy.Spider):
         l.add_css("status", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(5)>span.classictext::text")
         l.add_css("openingDate", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(6)>span.classictext::text")
         l.add_css("closingDate", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(7)>span.classictext::text")
-        l.add_css("commitmentPeriod", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(8)>span.classictext::text")
-        l.add_css("companyRegistrationNumber", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(9)>span.classictext::text")
+        l.add_css("commitmentPeriod", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(%d)>span.classictext::text" % td_commitmentPeriod)
+        l.add_css("companyRegistrationNumber", "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(%d)>span.classictext::text" % td_companyRegistration)
         yield l.load_item()
         
         # parse contact details
