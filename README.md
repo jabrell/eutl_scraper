@@ -28,7 +28,15 @@ scrapy crawl accounts -L INFO
 ```
 
 ## Transaction data
+Transaction data are compiled from the transaction list as provided on the [EU Union Registry Page](https://ec.europa.eu/clima/eu-action/eu-emissions-trading-system-eu-ets/union-registry_en#tab-0-1). The data provided include the unit type transferred and account informations. However, they do no link the same account identifiers as provided by the account database. To compile the data and link them to downloaded account data run:
 
+```
+python main_transactions.py
+```
+
+### Transaction Spider
+
+**Using the transaction spider is depreciated. For documentation we keep the description here**
 Each transaction block is downloaded together with the main transaction information and the linking between account identifiers used in in the transaction and those used in the account data. A complete extraction takes about 12 hours:
 
 ```
@@ -41,19 +49,14 @@ To limit transaction download times and allow scrapping in chunks, it is possibl
 scrapy crawl transactions -a start_date=01/01/2019 -a end_date=31/01/2019 -L INFO
 ```
 
+**In running the transaction spider, be aware that occasionally data are downloaded twice leading to possible duplicates in the data which are, however, difficult to identify as they get an unique transaction block identifier.**
+
 ## Entitlement data
 Data on offset entitlements are downloaded using 
 ```
 scrapy crawl entitlements -L INFO
 ```
 
-## Linking transaction and account data
-
-The transaction data use identifiers for accounts different from those used by the account database. In final step, we construct the mapping from account to transaction data using the linked urls as provided in the transaction data. To establish this linking run:
-
-```
-python main_linking.py
-```
 
 # Build the database
 
