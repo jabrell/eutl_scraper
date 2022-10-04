@@ -1,24 +1,37 @@
 import csv
 from itemadapter import ItemAdapter
-from eutl_scraper.items import (AccountItem, ContactItem, 
-                                InstallationItem, ComplianceItem, 
+from eutl_scraper.items import (AccountItem, ContactItem,
+                                InstallationItem, ComplianceItem,
                                 SurrenderingDetailsItem, TransactionItem,
-                                TransactionBlockItem, AccountIDMapItem)
+                                TransactionBlockItem, AccountIDMapItem,
+                                EsdTransactionItem)
+from eutl_scraper.items.transactionItems import EsdTransactionBlockItem
 from eutl_scraper.own_settings import DIR_PARSED
 import os.path
 
 
-
 class EutlScraperPipeline:
     itemsToProcess = [
-        {"item": AccountItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'accounts.csv', "appendExisting": False},
-        {"item": ContactItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'contacts.csv', "appendExisting": False},
-        {"item": InstallationItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'installations.csv', "appendExisting": False},
-        {"item": ComplianceItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'compliance.csv', "appendExisting": False},
-        {"item": SurrenderingDetailsItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'surrendering.csv', "appendExisting": False},
-        {"item": TransactionItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'transactions.csv', "appendExisting": True},
-        {"item": TransactionBlockItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'transactionBlocks.csv', "appendExisting": True},
-        {"item": AccountIDMapItem, "rows": [], "header": [], "output_file_name": DIR_PARSED + 'accountIdMap.csv', "appendExisting": True},
+        {"item": AccountItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'accounts.csv', "appendExisting": False},
+        {"item": ContactItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'contacts.csv', "appendExisting": False},
+        {"item": InstallationItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'installations.csv', "appendExisting": False},
+        {"item": ComplianceItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'compliance.csv', "appendExisting": False},
+        {"item": SurrenderingDetailsItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'surrendering.csv', "appendExisting": False},
+        {"item": TransactionItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'transactions.csv', "appendExisting": True},
+        {"item": TransactionBlockItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'transactionBlocks.csv', "appendExisting": True},
+        {"item": AccountIDMapItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'accountIdMap.csv', "appendExisting": True},
+        {"item": EsdTransactionItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'esdTransactions.csv', "appendExisting": True},
+        {"item": EsdTransactionBlockItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'esdTransactionBlocks.csv', "appendExisting": True},
     ]
 
     def process_item(self, item, spider):
@@ -33,7 +46,7 @@ class EutlScraperPipeline:
             if len(it["rows"]) == 0:
                 continue
             # check whether we allow to append to existing files
-            if os.path.isfile(it["output_file_name"]) and it["appendExisting"]:              
+            if os.path.isfile(it["output_file_name"]) and it["appendExisting"]:
                 # append to existing file
                 with open(it["output_file_name"], "a", newline="", encoding="utf-8") as output_file:
                     dict_writer = csv.DictWriter(output_file, it["header"])
