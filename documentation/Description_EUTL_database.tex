@@ -1,0 +1,821 @@
+%% ---------------------------------------------
+%%
+%% It may be distributed under the conditions of the LaTeX Project Public
+%% License, either version 1.2 of this license or (at your option) any
+%% later version.  The latest version of this license is in
+%%    http://www.latex-project.org/lppl.txt
+%% and version 1.2 or later is part of all distributions of LaTeX
+%% version 1999/12/01 or later.
+%%
+%% The list of all files belonging to the 'Elsarticle Bundle' is
+%% given in the file `manifest.txt'.
+%%
+%% Template article for Elsevier's document class `elsarticle'
+%% with harvard style bibliographic references
+%%
+%% $Id: elsarticle-template-5-harv.tex 159 2009-10-08 06:08:33Z rishi $
+%% $URL: http://lenova.river-valley.com/svn/elsbst/trunk/elsarticle-template-5-harv.tex $
+%%
+%\documentclass[preprint,authoryear,12pt]{elsarticle}
+
+%% Use the option review to obtain double line spacing
+%\documentclass[authoryear,preprint,review,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%%\documentclass[final,authoryear,1p,times]{elsarticle}
+%%\documentclass[final,authoryear,1p,times,twocolumn]{elsarticle}
+\documentclass[authoryear]{elsarticle}
+
+%% remove footers given elsacticle
+\makeatletter
+\def\ps@pprintTitle{%
+	\let\@oddhead\@empty
+	\let\@evenhead\@empty
+	\def\@oddfoot{}%
+	\let\@evenfoot\@oddfoot}
+\makeatother
+
+%\documentclass[final,authoryear,5p,times]{elsarticle}
+%\documentclass[final,authoryear,3p,times,twocolumn]{elsarticle}
+%\documentclass[final,authoryear,5p,times]{elsarticle}
+%\documentclass[final,authoryear,5p,times,twocolumn]{elsarticle}
+
+
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers after \end{frontmatter}.
+%% \usepackage{lineno}
+
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{booktabs}
+\usepackage{amssymb}
+\usepackage{amsbsy}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{verbatim}
+\usepackage{tikz}
+\usepackage{lscape}
+\usepackage{eurosym}
+\usepackage{xspace}												% für saubere Abstände nach Makros
+\usepackage[version=3]{mhchem}									% Für chemische Reatkionsgleichungen
+\usepackage{multirow}
+\usepackage{bm}
+\usepackage{lscape}
+\usepackage{txfonts}                                            % needed for (conditional= independence sign
+\usepackage{enumitem}                    % to remove indentation in lists
+\usepackage{setspace}
+\usepackage{rotating}
+%\doublespacing
+
+%% Use hyperref package and define link color
+\usepackage{color}
+\definecolor{blue}{rgb}{0,0,0.5}
+\definecolor{gray}{rgb}{0.9,0.9,0.9}
+\usepackage[pdftitle={},pdfauthor={Jan Abrell},bookmarksopen]{hyperref}
+\hypersetup{colorlinks=true, breaklinks=true, linkcolor=blue, urlcolor=blue}
+
+
+\usepackage[authoryear,round]{natbib}
+%% natbib.sty is loaded by default. However, natbib options can be
+%% provided with \biboptions{...} command. Following options are
+%% valid:
+
+\usepackage{caption}
+\usepackage{hyperref} 
+
+\captionsetup[table]{font=small,labelformat=simple,labelsep=period}
+\captionsetup[figure]{font=small,labelformat=simple,labelsep=period}
+\captionsetup[subfigure]{font=small,labelformat=parens,labelsep=none}
+\renewcommand{\figurename}{\textsc{Figure}}
+\renewcommand{\tablename}{\textsc{Table}}
+
+%\captionsetup[table]{font=small,labelformat=simple,labelsep=period,listofformat=subparens}
+%\captionsetup[figure]{font=small,labelformat=simple,labelsep=period,listofformat=subparens}
+%\usepackage{subcaption}
+
+
+%%   round  -  round parentheses are used (default)
+%%   square -  square brackets are used   [option]
+%%   curly  -  curly braces are used      {option}
+%%   angle  -  angle brackets are used    <option>
+%%   semicolon  -  multiple citations separated by semi-colon (default)
+%%   colon  - same as semicolon, an earlier confusion
+%%   comma  -  separated by comma
+%%   authoryear - selects author-year citations (default)
+%%   numbers-  selects numerical citations
+%%   super  -  numerical citations as superscripts
+%%   sort   -  sorts multiple citations according to order in ref. list
+%%   sort&compress   -  like sort, but also compresses numerical citations
+%%   compress - compresses without sorting
+%%   longnamesfirst  -  makes first citation full author list
+%%
+%% \biboptions{longnamesfirst,comma}
+
+% \biboptions{}
+
+%\renewcommand{\floatpagefraction}{.8}
+%\journal{Energy Economics}
+%\journal{Resource and Energy Economics}
+
+\newcommand{\eg}{\mbox{e.\,g.}\xspace}						% setzt z.h. mit dem Befehl \eg immer richtig!
+\newcommand{\ie}{\mbox{i.\,e.}\xspace}						% setzt z.h. mit dem Befehl \ie immer richtig!
+\newcommand{\perc}{\,\%~}									% blödes Prozentzeichen
+\newcommand{\coo}{\ce{CO2}\xspace}							% das richtige setzen von co2
+\newcommand{\eur}{\,\euro~}									% blödes Prozentzeichen
+\newcommand{\redtext}[1]{\color{red}#1\color{black}}        % red text 
+\newtheorem{assum}{Assumption}                              % Environment for assumptions
+%\DeclareMathOperator{\E}{\mathbb{E}}                        % expectation operator    
+\newcommand{\E}[1]{\mathbb{E}\left[#1\right]}                % expectation operator    
+\newcommand{\pder}[2]{\frac{\partial#1}{\partial#2}}        % partial derivative 
+
+
+\begin{document}
+
+\begin{frontmatter}
+\title{Database for the European Union Transaction Log} 
+%\date{\today}
+
+
+\author{Jan Abrell\fnref{asdfasdf}}
+%\corref{cor1}
+\address[a]{euets.info@posteo.de\\ \today}
+\fntext[fn1]{I thank Regina Betz, Johann Gottschling, Sebastian Rausch, Hannes Weigt, Aleksandar Zaklan for helpful and constructive comments and discussions. Special thanks go to Mirjam Kosch for continuous support and encouragement on this project.}
+
+\begin{abstract}
+	The European Union Transaction Log (EUTL) is the central reporting and monitoring tool of the European Emissions Trading System (EUETS), the world's largest emissions trading system. Through the EUTL, the European Commission publicly provides information on compliance of regulated entities, participants active in the system, and transactions between these participants. Accessing the data is rather burdensome as data access is inconvenient and, more important, the relation between different elements of the EUTL is missing. Out of the data publicly provided by the European Commission, I construct a relational database connecting the different elements of the EUTL facilitating the analysis of compliance and transaction behavior in the world's largest carbon market. These data can be assessed online on \href{https://www.euets.info}{EUETS.INFO}.
+\end{abstract}
+
+%\begin{keyword}
+%Carbon pricing  \sep Machine learning \sep Causal inference \sep Policy evaluation
+%%\sep Electricity generation
+%%\JEL Q41 \sep Q42 \sep Q58
+%\end{keyword}
+
+%% MSC codes here, in the form: \MSC code \sep code
+%% or \MSC[2008] code \sep code (2000 is the default)
+
+%F18 	Trade and Environment
+%Q2 	Renewable Resources and Conservation
+%	Q28 	Government Policy
+%Q4 - Energy
+%Q43    Energy and the Macroeconomy
+%Q48 	Government Policy
+%Q54 - Climate; Natural Disasters; Global Warming
+%C68 - Computable General Equilibrium Models
+
+
+\end{frontmatter}
+
+%\tableofcontents
+%\pagebreak
+\section*{Udpates}
+\begin{itemize}
+	\item 26.05.2021
+	\begin{itemize}
+		\item Database update to include transaction data up to and including April 2019 and compliance data up to 2022. 
+		\item Version corresponds to the EUTL version \emph{Version: 13.7EUTLP04-03-2022 14:52}
+		\item Transaction data are no longer parsed from downloaded transaction blocks but rely on  \href{https://ec.europa.eu/clima/document/download/0cda99f1-16f6-41e7-b190-887cd71339a4_en?filename=transactions_eutl_2022.zip}{transaction data made public by the commission} (also see: \href{https://ec.europa.eu/clima/eu-action/eu-emissions-trading-system-eu-ets/union-registry_en#tab-0-1}{Union Registry Page}).
+		\item Due to link with the Swiss system, compliance, surrendering, and entitlement data might included assignments over the Swiss registry (for aircraft operators). To account for this entitlements are now reported as \emph{euEntitlements} and \emph{chEntitlements} in the installations table. Field \emph{reportedInSystem} indicates the system in which data are reported (EUETS or CHETS) in the compliance and surrendering table. The field is part of the composite primary key. 
+		\item Added additional fields to account holder table relating to phone number, mail address, and legal identifier of primary contact.
+	\end{itemize}	
+	\item 21.05.2021
+		\begin{itemize}
+			\item Database update to include transaction data up to and including April 2018 and compliance data up to 2020. 
+			\item Version corresponds to the EUTL version \emph{13.1.1EUTLP23-04-2021 16:52}
+			\item Transaction data checked for consistency with \href{https://ec.europa.eu/clima/sites/default/files/ets/registry/docs/transactions_eutl_2021.zip}{transaction data made public by the commission} (also see: \href{https://ec.europa.eu/clima/policies/ets/registry_en#tab-0-1}{Union Registry Page}). Data published on the Union Registry page are consistent with the data provided by the EUTL except some transaction for the Luxembourg registry are mission in the data published on the Commission page. Transaction blocks are sometimes inconsistent with amounts provided in the transaction overview (about 6300 transactions). In that case data from the Union Registry page are substituted for transaction blocks ensuring consistency between datasets.  			
+		\end{itemize}
+\end{itemize}
+
+
+
+\section{Introduction}\label{sec:introduction}
+The European Union Transaction Log (EUTL) is the central reporting tool of the European Emissions Trading System (EUETS). The EUETS allows trading emission allowances between participants in the system. With a delay of three years, transactions are reported through the EUTL. The EUTL also offers detailed information on the compliance of each installation covered by the EUETS. 
+	
+This note describes the construction of a database rebuilding the EUTL. The EUTL data can be downloaded from the EUTL webpage.\footnote{\url{https://ec.europa.eu/clima/ets/}} The original EUTL page poses two major challenges. First, it is difficult to relate the different bits and pieces, in particular, we are not able to relate accounts, installations, and their transactions. Second, the data is not accessible in a user friendly way. The major aim of this project is to provide a structured way to assess the EUTL information. To achieve this goal, I relate the different pieces of information in the EUTL; and I develop and store the information in a relational database model.
+
+The construction of the database requires three steps:
+\begin{enumerate}
+	\item \textit{Download, parse, clean data}\\ I download websites containing the EUTL data. Parsing the pages, I use links to reconstruct relations between the different components of the EUTL. In addition, I impose some satellite data including economic activities in the form of NACE codes and locations of installations.   
+	\item \textit{Restoring former operator holding accounts}\\ In 2012/2013 the Community Independent Transaction Log was transformed into the EUTL. From the data side, the most notable change was the change in the account classification system. All \textit{former operator holding accounts}, i.e. accounts related to installations, had to close and re-open as \textit{operator holding accounts}. As the EUTL is static in the sense that it only reports the relation between installations and accounts for a given point in time, I develop an algorithm to reconstruct the historical relation between installations and former operator holding accounts. This relation is important to analyze the transaction behavior of installations before 2013. 
+	\item \textit{Development and implementation of data model}\\ Provided processed EUTL data, I develop and implement a relational database model. 
+\end{enumerate} 
+
+I describe step one and two in greater detail in Appendix \ref{app:download} and \ref{app:reconstruction}. In the description of these steps, I will be non-technical in the sense that I describe the overall approach but not every technical detail of, e.g., data parsing and cleaning. Moreover, I do not add on the programmatic implementation using Python. In the main text I concentrate on the information provided in the EUTL database and the implemented data model. 
+
+How to use the final database? The database can be assessed in two different ways: The website \url{EUETS.INFO} allows assessing the data online and, in addition, provides all data in csv format. On the website is possible to search for installations, accounts, and account holders using their names and then inspect the compliance and transaction behavior. Whereas the website also allows aggregating compliance data on the country level, it is not fully flexible and does not include every feature included in the underlying dataset. 
+
+Downloading and using the source data files is naturally the more complete but also more burdensome way of analyzing the dataset. To lower this burden, I started to develop a series of Python routines to implement the data model in Postgres SQL. This includes routines to create the database as well as an object relational mapper (ORM) to assess the data in a more convenient way. These routines are under active development and the latest versions are available on  GitHub.\footnote{\url{https://github.com/jabrell/eutl_orm}}
+
+In the remainder of this paper, I first provide a short primer on the EUTL explaining its different components and their relation. I then describe the information provided for each of these components. The relational data model is described in Section \ref{sec:model}. 
+
+
+	
+\section{The European Union Transaction Log}
+The EUETS regulates greenhouse gas emissions of stationary installations and airplanes. Every year, each installation\footnote{I use the term installation to cover both, stationary installations as well as airplanes.} has to surrender allowances at least equal to its verified emissions of the previous year to the regulatory authority. Installations receive these allowances either by free allocation or buy them on the allowances market, e.g., in an auction or from another market participant. The EUETS is an open system, i.e., not only regulated entities and regulators but also non-regulated companies and actors are allowed to transfer allowances. 
+
+To make the trading of allowances possible, a system to account and transfer allowances between different actors is necessary. In the case of the EUETS this is the EUTL or formerly the CITL. Together with the EUTL, the EUETS introduces several building blocks (Figure \ref{fig:eutl_strucutre}). \emph{Installations} are regulated entities. The obligation to surrender allowances for verified emissions as well as emission accounting takes place at the installation level. \textit{Transactions}, i.e., the transfer of allowances between actors in the EUETS, takes place at the level of \textit{accounts}. To be able to receive, transfer, and surrender allowances each installations is represented by an \textit{operator holding account} (OHA). Likewise, to be able to allocate and receive surrendered allowances, regulatory authorities also have to be represented by accounts. I call these accounts \textit{administrative accounts} (AA). Non-regulated actors (e.g. intermediaries) can join the system using \textit{person holding accounts} (PHA). For each account, the EUTL provides a primary contact, which I call \textit{Account Holder}.
+
+\begin{figure}[!htbp]
+	\caption{Structure of the European Union Transaction Log (EUTL)}\label{fig:eutl_strucutre}
+	\centering
+	\vspace{-2ex}
+	\includegraphics[width=\textwidth]{figures/eutl_structure.png}
+%	\vspace{0ex}
+%	\caption*{\footnotesize \emph{Notes:}}
+%	\vspace{0ex}
+\end{figure}
+
+In the analysis of the EUTL, account holders have a somewhat special role. The EUTL provides information on transactions between accounts represented by account holders. However, companies and regulatory authorities are not directly represented within the EUTL but through the account holder. Thus, account holders provide the link across the boundary of the EUTL (black box in Figure \ref{fig:eutl_strucutre}). 
+
+%In matching EUTL data with firm level data, I found that matching on address information of account holders thus often proves more successful.
+
+
+%Even without matching on company data, account holders are useful to detect the relation between accounts. Whereas each account is represented by one account holder, 
+\section{Information in the EUTL Database}
+In this section, I describe the information provided for each of the components of the EUTL. Along that line, I also present the tables provided in the database together with a description of each of the fields. Appendix \ref{app:lookup} provides lookup tables, i.e., tables that include descriptions of activity, transaction, account etc.
+
+\subsection{Installations}\label{sec:data_installation}
+
+The EUTL contains three types of information for installations. Details on the installation, on its compliance, and on the type and origin of surrendered units.  
+
+Each installation can be identified by a unique \textit{id} that is constructed by the ISO2 code of the registry and the number of the installation in the registry (as provided by the EUTL webpage) (Table \ref{tab:tbl_installation}). Further information includes the registry in which the installation is registered. For stationary installations, the registry equals the country of location, aircraft operators are free to choose the registry. 
+
+Coverage of the installations under the EUETS is regulated on the activity level. If an installation performs an activity as listed in Table \ref{tab:activityTypes}, it falls under the EUETS.\footnote{For a precise definition which activities are regulated refer to the Appendix of the EUETS directive.} Activities 1-9 and 99 have been introduced in 2005; the remaining activities in 2012. All classes are still used in the database. Given the large number of activities, it is often helpful to aggregate activity types. Table \ref{tab:activityTypes} provides the aggregation used on \href{https://www.euets.info}{EUETS.INFO}.
+
+We further observe the \textit{entitlement} for international credit usage. The EUTL has a field to provide information on companies related to the installation. The information is however rarely provided.
+
+In the case of stationary installations, the EUTL provides the address and location of the installation. Latitude and longitude provided are however rather incomplete and the quality does not seem to be very high. I thus use the address together with Google Maps API to retrieve a new set of locations. 
+
+I further include NACE codes of each installation based on the leakage assessment of the European Commission.\footnote{I include information from the NACE matching table of the 2020 leakage assessment (\url{https://ec.europa.eu/clima/events/stakeholder-meeting-results-preliminary-carbon-leakage-list-phase-4-eu-emissions-trading_en}) as well as from the 2015 assessment (\url{https://ec.europa.eu/clima/sites/clima/files/installation_nace_rev2_matching_en.xls}).}
+
+\begin{table}[tbp]\scriptsize
+	\caption{\textit{installation.csv}: Installation table}\label{tab:tbl_installation}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} llp{8cm} @{}}
+		\toprule
+		\toprule
+		\textbf{Column} & \textbf{Type}  & \textbf{Description} \\
+		\midrule
+		id    & varchar & Installation id as combination of registry identifier and number unique in registry (e.g., AT\_1) \\
+		name  & varchar & Name of installation \\
+		registry\_id & varchar & 2-digit ISO code of registry  \\
+		activity\_id & int4  & Key of installation activity  \\
+		eprtrID & varchar & Identifier in the European Pollution Release and Transfer Register \\
+		parentCompany & varchar & Name of the parent company of the installation \\
+		subsidiaryCompany & varchar & Name of subsidiary company of the installation \\
+		permitID & varchar & Permit identifier of the installation \\
+		designatorICAO & varchar & Aircraft: Designator for the aircraft type according to the International Civil Aviation Organization \\
+		monitoringID & varchar & Aircraft: Identifier for monitoring plan to determine emissions of the aircraft operator \\
+		monitoringExpiry & varchar & Aircraft: Expiry date of monitoring  \\
+		monitoringFirstYear & varchar & Aircraft: First year when monitoring plan becomes applicable \\
+		permitDateExpiry & timestamp & Date when permit identifier becomes invalid \\
+		isAircraftOperator & bool  & Indicator whether the installation is an aircraft operator \\
+		ec748\_2009Code & varchar & Aircraft: Identifier of aircraft operator under EC 748/2009 regulation (inclusion of aircrafts in the EUETS) \\
+		permitDateEntry & timestamp & Date when permit identifier was create \\
+		addressMain & varchar & Main address line of installation \\
+		addressSecondary & varchar & Secondary address line of installation \\
+		postalCode & varchar & Postal code of installation \\
+		city  & varchar & City of installation \\
+		country\_id & varchar & Country of installation \\
+		latitudeEutl & float8 & Latitude as provided by EUTL \\
+		longitudeEutl & float8 & Longitude as provided in EUTL \\
+		latitudeGoogle & float8 & Latitude as derived by address from Google maps \\
+		longitudeGoogle & float8 & Longitude as derived by address from Google maps \\
+		nace15\_id & varchar & NACE code according to 2015 leakage list \\
+		nace20\_id & varchar & NACE code according to 2020 leakage list \\
+		nace\_id & varchar & NACE code according to 2020 leakage list with missing values filled from 2015 list \\
+		entitlement & int4  & Entitlement for credits created from flexible mechanisms \\
+		chEntitlement & int4  & Entitlement for credits created from flexible mechanisms created over Swiss registry. \\
+		euEntitlement & int4  & Entitlement for credits created from flexible mechanisms created over EUTL\\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+\caption*{\footnotesize \emph{Notes:} \textit{id} is primary key. Foreign keys are marked by \textit{\_id}.}
+\vspace{0ex}
+\end{table}
+
+For each installation, we observe compliance data including verified emissions, allocated and surrendered allowances for each year (Table \ref{tab:tbl_compliance}). For allocations we observe whether allowances have been allocated for free or out of the new entry reserve or under Article 10c of the directive (includes 3f for aviation).
+
+% Table generated by Excel2LaTeX from sheet 'Compliance'
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{compliance.csv}: Compliance table}\label{tab:tbl_compliance}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} llp{8cm} @{}}
+		\toprule
+		\toprule
+		\textbf{Column} & \textbf{Type}  & \textbf{Description} \\
+		\midrule
+		installation\_id & varchar & Unique ID of the related installation \\
+		year  & int4  & Year of compliance \\
+		reportedInSystem & varchar  & System in which the data is reported (EUETS or CHETS) \\
+		euetsPhase & varchar & Phase of the EUETS \\
+		compliance\_id & varchar & Compliance code \\
+		allocatedFree & int4  & Number of certificates allocated for free \\
+		allocatedNewEntrance & int4  & Number of certificates allocated out of the new entrance reserve \\
+		allocatedTotal & int4  & Total number of allocated certificates \\
+		allocated10c & int4  & Number of certificates allocated under Article 10 c of the EUTL directive, i.e., free allocation for modernization of electricity generation. For aviation this corresponds to allowances granted under article 3f. \\
+		verified & int4  & Amount of verified emissions [t] \\
+		verifiedCummulative & int4  & Cummulative amount of verfied emissions \\
+		verifiedUpdated & bool  & Indicator whether verified emission have been updated ex-post \\
+		surrendered & int4  & Number of surrendered certificates \\
+		surrenderedCummulative & int4  & Cummulative amount of surrendered certificates \\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+	\caption*{\footnotesize \emph{Notes:} \textit{installation\_id} and \textit{year} are used as composite primary key. Foreign keys are marked by \textit{\_id}.}
+	\vspace{0ex}
+\end{table}
+
+Compliance data are further detailed by details on surrendered units (Table \ref{tab:tbl_surrender}) in particular the unit type (Table \ref{tab:unitType}). The information is particular valuable for the years before 2013. In these years we observe the country of origin and possibly the project identifier for international project mechanisms (Table \ref{tab:tbl_project}). 
+
+% Table generated by Excel2LaTeX from sheet 'Surrender'
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{surrender.csv}: Surrendering table}\label{tab:tbl_surrender}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} llp{8cm} @{}}
+		\toprule
+		\toprule
+		\textbf{Column} & \textbf{Type}  & \textbf{Description} \\
+		\midrule
+		id    & serial & Surrendering identifier \\
+		installation\_id & varchar & Installation identifier \\
+		year  & int4  & Year of surrendering \\
+		reportedInSystem & varchar  & System in which the data is reported (EUETS or CHETS) \\
+		unitType\_id & varchar & Identifier surrendered certificate type \\
+		amount & int4  & Amount of surrendered units \\
+		originatingRegistry\_id & varchar & 2-letter iso code of country in which the certificate was created  \\
+		project\_id & int4  & Identifier of project creating the certificate in case of flexible mechanism (CDM or JI) \\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+\caption*{\footnotesize \emph{Notes:} \textit{id} is the primary key. Foreign keys are marked by \textit{\_id}.}
+\vspace{0ex}
+\end{table}
+
+% Table generated by Excel2LaTeX from sheet 'Project'
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{offset\_project.csv}: Project table}\label{tab:tbl_project}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} llp{8cm} @{}}
+		\toprule
+		\toprule
+		\textbf{Column} & \textbf{Type}  & \textbf{Description} \\
+		\midrule
+		id    & serial & Project identifier that also relates to UNFCCC database \\
+		track & int4  & Track of the CDM project \\
+		country\_id & varchar & Country in which the project takes place \\
+		\bottomrule
+\bottomrule
+\end{tabular*}%
+	\vspace{-3ex}
+\caption*{\footnotesize \emph{Notes:} \textit{id} is primary key. Foreign keys are marked by \textit{\_id}.}
+\vspace{0ex}
+\end{table}
+
+
+
+\subsection{Accounts}
+Each party participating in the EUETS is represented by an account. I distinguish three broad categories of accounts. \emph{Operator Holding Accounts (OHA)}, \emph{Person Holding Accounts (PHA)}, and \emph{Administrative Accounts (AA)}. Table \ref{tab:accountTypes} provides a mapping between the detailed account types used in the EUTL and these categories as well as the number of accounts by account type.
+
+Each account is identifiable by a unique account \textit{id}. Due to various processing steps, this \textit{id} does not coincide with identifier used in the EUTL database. Together with the \textit{name} of the account, we observe the account type and holder, when the account was opened/closed, and in case of an operator holding account the corresponding installation. The \textit{companyRegistrationNumber} is useful to match accounts to firm level databases. The indicator \textit{isRegisteredEutl} indicates whether the account is registered in the EUTL or in a registry outside the EUETS as, e.g., in the case of international project mechanisms. 
+
+% Table generated by Excel2LaTeX from sheet 'Accounts'
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{account.csv}: Account table}\label{tab:tbl_account}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} lll @{}}
+		\toprule
+		\toprule
+		\textbf{Column } & \textbf{Type} & \textbf{Description}\\
+		\midrule
+		id    & serial & Unique account identifier \\
+		name  & varchar & Name of account \\
+		registry\_id & varchar & 2 letter ISO code for registry \\
+		accountHolder\_id & int4  & Identifier of account holder \\
+		accountType\_id & varchar & Identifier of account type \\
+		isOpen & bool  & Indicator whether the account is open  \\
+		openingDate & timestamp & Indicator whether the account is open  \\
+		closingDate & timestamp & Indicator whether the account is open  \\
+		commitmentPeriod & varchar & Refer to Kyoto commitment period \\
+		companyRegistrationNumber & varchar & VAT registration number of the associated company \\
+		isRegisteredEutl & bool  & Account is registered in the EUTL \\
+		installation\_id & varchar & Identifier of installation \\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+\caption*{\footnotesize \emph{Notes:} \textit{id} is primary key. Foreign keys are marked by \textit{\_id}.}
+\vspace{0ex}
+\end{table}
+
+\subsection{Account Holders}
+
+Account holders are the primary contact of accounts. \textit{id} provides the unique identifier for each account holder. We additionally observe the name as well as address of the account holder. Account holders prove in particular useful in matching with firm level data as the address often coincide with company addresses. 
+
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{account\_holder.csv}: Account holder table}\label{tab:tbl_holder}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} lll @{}}
+		\toprule
+		\toprule
+		\textbf{Column} & \textbf{Type}  & \textbf{Description} \\
+		\midrule
+		id    & serial & Identifier of account holder \\
+		name  & varchar & Name of account holder \\
+		addressMain & varchar & Primary address line \\
+		addressSecondary & varchar & Secondary address name \\
+		postalCode & varchar & Postal code \\
+		city  & varchar & City name \\
+		country\_id & varchar & 2-digit ISO country identifier \\
+		telephone1  & varchar & Phone number 1 \\
+		telephone2  & varchar & Phone number 1 \\
+		eMail  & varchar & E-mail address \\
+		legalEntityIdentifier & varchar & Legal identifier of primary contact\\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+\caption*{\footnotesize \emph{Notes:} \textit{id} is primary key. Foreign keys are marked by \textit{\_id}.}
+\vspace{0ex}
+\end{table}
+
+\subsection{Transactions}
+Transactions take place between two accounts. Each transaction is classified using a main (Table \ref{tab:transTypesMain}) and supplementary type (Table \ref{tab:transTypesSup}). One transaction combines several transaction blocks which detail the type of allowances transferred (Table \ref{tab:unitType}). To keep this information, data are extracted on the level to transaction blocks and finally aggregated again. As a consequence, the unique identifier of each transaction, \textit{id}, does not coincide with the transaction identifier originally assigned by the EUTL. The transaction table (Table \ref{tab:tbl_transaction}) provides the original identifier in the field \textit{transactionID} that is, however, not unique in the provided database. Apart from involved accounts, transaction and unit types, we observe the date of the transaction and the amount of allowances transferred. 
+
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{transaction.csv}: Transaction table}\label{tab:tbl_transaction}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} lll @{}}
+		\toprule
+		\toprule
+		\textbf{Column} & \textbf{Type} & \textbf{Description} \\
+		\midrule
+		id    & serial & Unique ID of the transaction  \\
+		transactionID & varchar & ID of the transaction in which the transaction block took place \\
+		date  & timestamp & Date of transaction \\
+		transactionTypeMain\_id & int4  & Main transaction type \\
+		transactionTypeSupplementary\_id & int4  & Supplementary transaction type \\
+		transferringAccount\_id & int4  & Identifier of account that transferred the permits \\
+		acquiringAccount\_id & int4  & Identifier of the account that aquired permits \\
+		unitType\_id & varchar & Type of certificate transfered \\
+		project\_id & int4  & Identifier of the CDM or JI project that created the certificate \\
+		amount & int8  & Number of units transferred \\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+\caption*{\footnotesize \emph{Notes:} \textit{id} is primary key. Foreign keys are marked by \textit{\_id}.}
+\vspace{0ex}
+\end{table}
+
+
+
+%%MOVE TO DATAMODEL 
+
+%Regulatory authorities are represented by Administrative Accounts (AA). Table \ref{tab:accountTypes} shows that regulatory authorities use different accounts for different actions. E.g., auction delivery accounts (100-13) are used to deliver auctioned allowances to marketeers performing the auction.  
+
+
+
+\section{A Relational Model of the EUTL}\label{sec:model}
+Figure \ref{fig:eutl_database} shows the relations in the database among the core tables. Each Installation (right hand side) relates to N different entries in the compliance and surrendering. For compliance, we observe allocated and surrendered allowances, and verified emissions for each year the installation was part of the EUETS. For surrendering, each installation is related to a row in the surrendering table, characterized by the unit type and origin of the surrendered unit. 
+	
+\begin{figure}[!htbp]
+	\caption{Relations in the EUTL Database}\label{fig:eutl_database}
+	\centering
+	\includegraphics[width=\textwidth]{figures/eutl_database.png}
+	\vspace{-5ex}
+	\caption*{\footnotesize \emph{Notes}: The header of each box states the table name. Primary keys are provided in gray boxes and bold font. Foreign keys in orange-yellow boxes. Not all fields are shown. For a complete list of fields and description of their content consult the respective table.}
+	\vspace{0ex}
+\end{figure}
+
+At each instance in time, each installation is associated with exactly one operator holding account. The OHA representing an installation might however change over time. An installation therefore might relate to N different OHAs. For most installations, we observe at least two associated accounts due to the 2012/13 reform of the EUTL causing most installations for be related to an former operator holding account (account type 120-0) and an operator holding account (100-7).
+
+Each account relates to exactly one account holder. An account holder can be related to several accounts. This relation can be used to detect which accounts belong together. As an example, a large power company with several power plants, necessarily has to register several OHAs for its installations (one for each installation). Often the account holder is the same for all of these OHA. The company could then also be related to a PHA doing all of its trading activities over a central trading account. To detect such patterns, \href{https://www.euets.info}{EUETS.INFO} allows searching accounts by account holder. Also given a specific account, the website reports related accounts as accounts sharing the same account holder. 
+
+A transaction relates to two accounts via the transferring and acquiring account identifier. The transferring account provides allowances that are transferred to the acquiring account. Each account can be involved in several transactions in both roles. E.g., OHAs are involved in at least two transactions in each year. OHAs need to acquire allowances to cover their verified emissions. To be compliant under the EUETS, OHA then need to surrender these units, i.e., are involved in a transaction as transferring account. 
+
+\section{Conclusion}
+
+The EUTL provides a large amount of information on the world's largest carbon market, the EUETS. This includes information on compliance behavior, details on surrendered units, and allowances transfers between participants. This project aims to make this information more accessible. For this, I provide three complementary resources:
+
+\begin{itemize}
+	\item \textbf{\href{https://euets.info}{EUETS.INFO}} provides high-level access to the data. It allows assessing compliance data by installation and find the associated accounts. These data are also provided on an aggregated level by country. Accounts can also be assessed using account names, holders, and types. For each account or account holder, it provides transactions.
+	\item \textbf{Source data} The compiled database is available for download on the website. All tables are provided in csv format. 
+	\item \textbf{Python routines} On \href{https://github.com/jabrell/eutl_orm}{GitHub} I provide some routines to create a SQL database implementing the data model. The repository also provides a first implementation of an object relation mapper (ORM) to access the created database. These steps are explained in a series of Jupyter notebooks. 
+\end{itemize}
+
+For exploratory data analysis, these resources work best in conjunction. I suggest downloading the source data and using the GitHub routine to create a local database. Then using the python routines, start analyzing a single installation. The GitHub repository shows a \href{https://github.com/jabrell/eutl_orm/blob/main/2_Installations.ipynb}{first example}. The most easy way to find an account or installation identifier is using the website. If you start analyzing, e.g., transactions, you can always use the page to get additional information about accounts or account holders. 
+
+\newpage 
+
+\appendix
+\section*{Appendix}
+\renewcommand{\thesubsection}{\Alph{subsection}}
+\renewcommand{\thetable}{\Alph{subsection}.\arabic{table}}
+\setcounter{table}{0}
+
+\subsection{Data Download and Extraction}\label{app:download}
+
+The EUTL data can be downloaded from the EUTL webpage.\footnote{\url{https://ec.europa.eu/clima/ets/}} Two ways of data download are possible: First, the EUTL offers the possibility to download the data in XML format. Second, all data displayed on the webpage can be downloaded and the information can be extracted afterwards. 
+
+The XML approach has the drawback that export is limited to 3000 data points. Moreover, at the time I tested the XML approach, it seemed that information was less complete. Most importantly, the XML approach makes it rather complicated to connect the bits and pieces of the EUTL. In contrast, using a crawler downloading each single website allows reconstructing the connection between transactions and accounts using information hidden in the html code. 
+
+The strategy of the webcrawler is the same in all cases, I first fetch the overview pages and then follow the links provided to download the corresponding sub pages. The process is rather time consuming in particular for the transaction data.\footnote{Downloaded pages as well as intermediate files containing the content of parsed pages are available on request.} 
+
+\subsubsection{Account Data}	
+For the account data, I download the overview over all accounts from the EUTL page.\footnote{I.e., I get all pages created under the query: \url{https://ec.europa.eu/clima/ets/account.do?languageCode=en&accountHolder=&search=Search&searchType=account&currentSortSettings=}} For each account, this overview contains the account holder name, address, the account type, and a link to the website containing the details for the account. This link contains a query that includes an account ID that is unique in the whole registry. I thus, extract the  account ID out of the provided link and use this ID to query the details for each account.\footnote{E.g., \url{https://ec.europa.eu/environment/ets/singleAccount.do?accountID=5812&action=details&languageCode=en&registryCode=DE} provides the account ID 5812 and the link to the details of this account. Importantly, albeit the account ID is unique in the registry, it is not sufficient to perform a query but needs to be combined with the code for the registry in which the account is registered (in the show case "DE" for Germany).} In this way, I download the details for each account and also create the unique account ID. Out of the account data, I construct two tables: The account and account holder table.
+
+In the original data, each account is associated with one account holder. I remove duplicated account holders. A duplicate is defined in terms of the name and address of the account holder.\footnote{Duplicate elimination requires that this information is provided. If one of the fields is not present, I do not delete the duplicates. This is a rather conservative approach allowing for further improvements.} I then re-establish the relation between accounts and account holders. After the deletion of duplicated account holders, one account holder possibly relates to several accounts. This might be interpreted as the one account holder being the representative of a company that owns multiple accounts.
+
+\subsubsection{Installation Data}
+Given the account ID of OHA and the corresponding registry, I download installation details including compliance data.\footnote{E.g., \url{https://ec.europa.eu/clima/ets/ohaDetails.do?accountID=103550&action=all&registryCode=DE}} In the same manner, I download compliance details and details about surrendering units.\footnote{E.g., \url{https://ec.europa.eu/clima/ets/surrenderedUnits.do?accountID=103550&registryCode=DE&action=surrenderedDetails&installationID=76601&returnURL=&periodCode=0}} I also download pages containing the entitlement for offset usage of each installation.\footnote{\url{https://ec.europa.eu/clima/ets/ice.do?languageCode=en&registryCode=-1&accountFullTypeCode=-1&iceInstallationId=&search=Search&currentSortSettings=}} The installation identifier provided by the EUTL is not unique but unique within a registry. I construct a unique ID combining the ID with the registry codes.\footnote{E.g., I assign the identifier AT\_1 to installation 1 in Austria (AT).} I construct four tables out of the installation pages: Installation details, compliance, surrendering details, and offset projects\footnote{Offset projects are also reported in the transaction data. I also include these projects into the table.}. 
+
+Given the extracted installation tables, I impose additional information in the form of latitude and longitude of stationary installations and the economic activity of the installation (see Section \ref{sec:data_installation}).
+
+\subsubsection{Transaction Data}
+
+To download transaction data, I first get all pages for the transaction overview.\footnote{\url{https://ec.europa.eu/clima/ets/transaction.do?languageCode=en&startDate=&endDate=&transactionStatus=4&fromCompletionDate=&toCompletionDate=&transactionID=&transactionType=-1&suppTransactionType=-1&originatingRegistry=-1&destinationRegistry=-1&originatingAccountType=-1&destinationAccountType=-1&originatingAccountIdentifier=&destinationAccountIdentifier=&originatingAccountHolder=&destinationAccountHolder=&search=Search&currentSortSettings=}} Each entry in this overview provides a link to the corresponding transaction details containing all transaction blocks together with the unit type. Most important, the details provide a link to accounts involved (as long as they are registered in the EUTL). Albeit unique, the account identifier used in this link does not coincide with the one provided in the account data. I thus follow the link. The corresponding account identifier as reported in the account data is then stored in a hidden field in the html code of the landing page. Following all links in the transaction data, I construct a correspondence between the account identifier used in the account and transaction data and, the missing link between transaction and account data. Out of the downloaded transaction detail pages, I construct a table with transaction blocks, containing the transferring and acquiring account identifier, the transaction date, the amount and type of units transferred, as well as the transaction type. In case of international credits, the code extracts the information about the offset project and inserts them into the project table. 
+
+International transactions might involve accounts that are not registered in the EUETS but in another registry. For these accounts, we do not observe data on the account websites of the EUTL. However, transactions often provide the name and country of these accounts and also an identifier which seems to be unique. For these accounts, I therefore construct additional accounts populated from the information provided in the transaction data. 
+
+\subsubsection{Compiling the final database}
+
+Most of the tables extracted out of the downloaded pages can be used directly. Besides cleaning tables from unnecessary fields and ensuring consistent data types, two major modifications are provided in the database constructions. First, I reconstruct the the relation of installations and former operator holding accounts (see Section \ref{app:reconstruction}). Second, to reduce the size of the transaction table, I group transaction blocks by date, involved accounts, the original transaction identifier, and unit and transaction type information.
+
+\subsection{Reconstructing Former Operator Holding Accounts}\label{app:reconstruction}
+
+Due to the reform of the EUTL in 2012/13 former OHAs (account type 120-0) had to close and re-open as OHAs (account type 100-7). For (most) former OHAs (fOHAs) the link to the respective installation is therefore missing. To be able to analyze the transaction behavior of installations over time, I reconstruct the relation of fOHA and installations using account holders and transaction data. This matching is performed in three steps:
+\begin{enumerate}
+	\item Matching by name and account holder: For all fOHA I search in the account table whether I find an active OHA that has (a) the same account name and (b) the same account holder. Only unique matches are accepted.
+	\item  Matching by surrendering transfers: I search for surrendering transfers of the fOHA by filtering transactions on the acquiring account type to be a party holding account (100-0)\footnote{Until 2012, compliance took place at the member state level.} and the supplementary transaction type indicating a surrendering transfer (supplementary type 2). Aggregating these transaction (blocks) by year, I search the compliance table for installations in the same registry and with surrendering data equal to the transferred amount out of the transaction data. In this step, I accept matches in which surrendering transfers match at least 75\% of surrendering amounts provided in the compliance table.
+	\item Matching by allocating transactions: This follows the same logic as with the surrendering transactions but party holding accounts being on the transferring side and the supplementary transaction type indicating an allocation (supplementary type 53).
+\end{enumerate} 
+
+In total 12814 out of 13016 fOHAs are matched to installations. Most fOHAs are matched by name and account holder (9085), followed by surrendering (3590) and acquiring transfers (139).
+
+%This approach of reconstructing the relation for fOHAs should be seen as a first step. So far, I have not explored the sensitivity of the approach to the order of steps. Moreover, accepting matches to transactions with a score above 75\% implicitly assumes, that the account-to-installation relation is stable over time apart from the change in 2012/13. The fOHA can however switch over time, e.g., in case the installation ownership changes.  
+
+\subsection{Lookup tables}\label{app:lookup}
+% Table generated by Excel2LaTeX from sheet 'Activities'
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{activity\_type.csv}: Activities regulated under the EUETS}\label{tab:activityTypes}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} lp{30.18em}l @{}}	
+		\toprule
+		\toprule		
+		\textbf{id} & \multicolumn{1}{l}{\textbf{description}} & \multicolumn{1}{p{5.135em}}{\textbf{category}} \\
+		\midrule
+		1     & Combustion installations with a rated thermal input exceeding 20 MW & Combustion \\
+		2     & Mineral oil refineries & Refineries \\
+		3     & Coke ovens & Coke ovens \\
+		4     & Metal ore (including sulphide ore) roasting or sintering installations & Metal \\
+		5     & Installations for the production of pig iron or steel (primary or secondary fusion) including continuous casting & Metal \\
+		6     & Installations for the production of cement clinker in rotary kilns or lime in rotary kilns or in other furnaces & Cement and Lime \\
+		7     & Installations for the manufacture of glass including glass fibre & Glass and Ceramics \\
+		8     & Installations for the manufacture of ceramic products by firing, in particular roofing tiles, bricks, refractory bricks, tiles, stoneware or porcelain & Glass and Ceramics \\
+		9     & Industrial plants for the production of (a) pulp from timber or other fibrous materials (b) paper and board & Pulp and Paper \\
+		10    & Aircraft operator activities & Aircrafts \\
+		20    & Combustion of fuels & Combustion \\
+		21    & Refining of mineral oil & Refineries \\
+		22    & Production of coke & Coke ovens \\
+		23    & Metal ore roasting or sintering & Metal \\
+		24    & Production of pig iron or steel & Metal \\
+		25    & Production or processing of ferrous metals & Metal \\
+		26    & Production of primary aluminium & Metal \\
+		27    & Production of secondary aluminium & Metal \\
+		28    & Production or processing of non-ferrous metals & Metal \\
+		29    & Production of cement clinker & Cement and Lime \\
+		30    & Production of lime, or calcination of dolomite/magnesite & Cement and Lime \\
+		31    & Manufacture of glass & Glass and Ceramics \\
+		32    & Manufacture of ceramics & Glass and Ceramics \\
+		33    & Manufacture of mineral wool & Glass and Ceramics \\
+		34    & Production or processing of gypsum or plasterboard & Glass and Ceramics \\
+		35    & Production of pulp & Pulp and Paper \\
+		36    & Production of paper or cardboard & Pulp and Paper \\
+		37    & Production of carbon black & Chemicals \\
+		38    & Production of nitric acid & Chemicals \\
+		39    & Production of adipic acid & Chemicals \\
+		40    & Production of glyoxal and glyoxylic acid & Chemicals \\
+		41    & Production of ammonia & Chemicals \\
+		42    & Production of bulk chemicals & Chemicals \\
+		43    & Production of hydrogen and synthesis gas & Hydrogen Production \\
+		44    & Production of soda ash and sodium bicarbonate & Chemicals \\
+		45    & Capture of greenhouse gases under Directive 2009/31/EC & Carbon Capture and Storage \\
+		46    & Transport of greenhouse gases under Directive 2009/31/EC & Carbon Capture and Storage \\
+		47    & Storage of greenhouse gases under Directive 2009/31/EC & Carbon Capture and Storage \\
+		99	  & Other activity opted-in pursuant to Article 24 of Directive 2003/87/EC&	Other\\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{0ex}
+	\caption*{\footnotesize \emph{Notes:} Activity codes (id) and desciption extracted from EUTL webpages. \emph{Categories} are categories as used on \href{https://euets.info}{EUTL.INFO} but not provided in the distributed csv file.}
+	\vspace{0ex}
+\end{table}%
+
+% Table generated by Excel2LaTeX from sheet 'AccountType'
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{account\_type.csv}: Account Types in the EUTL}\label{tab:accountTypes}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} ll @{}}
+		\toprule
+		\toprule
+		\textbf{id} & \textbf{description}  \\
+		\midrule
+		\multicolumn{2}{l}{Operator Holding Accounts} \\
+		\midrule
+		100-7 & Operator Holding Account \\
+		100-9 & Aircraft Operator Account \\
+		120-0 & Former Operator Holding Account \\
+		\midrule
+		\multicolumn{2}{l}{Person holding accounts} \\
+		\midrule
+		100-8 & Person Holding Account \\
+		100-12 & Trading Account \\
+		121-0 & Person Account in National Registry \\
+		\midrule
+		\multicolumn{2}{l}{Administrative Accounts} \\
+		\midrule
+		0-10  & Verifier Account \\
+		0-11  & External Platform Holding Account \\
+		100-0 & Party Holding Account \\
+		100-1 & AAU Deposit Account \\
+		100-2 & National Allowance Holding Account \\
+		100-3 & Central Clearing Account \\
+		100-4 & Gateway Deposit Account \\
+		100-5 & Union Allowance Deletion Account \\
+		100-6 & Aviation Surrender Set-Aside Account \\
+		100-13 & Auction Delivery Account \\
+		100-14 & Auction Account \\
+		100-15 & Aviation Auction Account \\
+		100-16 & Total Quantity Account \\
+		100-17 & Aviation Total Quantity Account \\
+		100-18 & New Entrant Reserve Account \\
+		100-19 & Special Reserve Account \\
+		100-20 & Allocation Account \\
+		100-21 & Aviation Allocation Account \\
+		100-22 & International Credit Account \\
+		100-23 & Credit Exchange Account \\
+		100-24 & AEA Total quantity Account \\
+		100-25 & ESD Compliance Account \\
+		100-26 & AEA Deletion Account \\
+		100-27 & EU AAU Account \\
+		100-28 & ETS AAU Deposit Account \\
+		100-29 & ESD Central Clearing Account \\
+		100-30 & ESD AAU Deposit Account \\
+		100-31 & ETS Central Clearing Account for CP2 \\
+		110-0 & Pending Account \\
+		130-0 & Previous Period Surplus Reserve Account (PPSR) \\
+		210-0 & Net Source Cancellation Account (Type 1) \\
+		220-0 & Non-compliance Cancellation Account (Type 2) \\
+		230-0 & Voluntary Cancellation Account (Type 3) \\
+		240-0 & Excess Issuance Cancellation Account (Type 4) \\
+		241-0 & CCS Net Reversal Cancellation Account \\
+		242-0 & Non Submission Of Verification Report Cancellation Account \\
+		250-0 & Mandatory (Cancellation Account (Type 5) \\
+		270-0 & Article 3.7ter Cancellation Account (Type 7) \\
+		280-0 & Ambition Increase Cancellation Account (Type 8) \\
+		300-0 & Retirement Account \\
+		411-0 & tCER Replacement Account for Expiry (Type 1) \\
+		421-0 & lCER Replacement Account for Expiry (Type 1) \\
+		422-0 & lCER Replacement Account for Reversal in Storage (Type 2) \\
+		423-0 & lCER Replacement Account for Non-submission of Certification Report (Type 3) \\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+	\caption*{\footnotesize \emph{Notes:} Account codes (id) and descriptions are extracted from EUTL webpages. Account types not listed there are, thus, not included in the table.}
+	\vspace{0ex}
+\end{table}%
+
+% Table generated by Excel2LaTeX from sheet 'data_ComplianceType'
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{compliance\_code.csv}: Compliance Codes}\label{tab:complianceCode}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} lp{10cm} @{}}
+		\toprule
+		\toprule
+		\textbf{id} & \textbf{description} \\
+		\midrule
+		A     & The number of allowances and ERUs/CERs surrendered by 30 April is greater than or equal to verified emissions \\
+		B     & The number of allowances and ERUs/CERs surrendered by 30 April is lower than verified emissions \\
+		C     & Verified emissions were not entered until 30 April \\
+		D     & Verified emissions were corrected by competent authority after 30 April of year X. The competent authority of the Member State decided that the installation is not in compliance for year X-1 \\
+		E     & Verified emissions were corrected by competent authority after 30 April of year X. The competent authority of the Member State decided that the installation is in compliance for year X-1 \\
+		X     & Entering verified emissions and/or surrendering was impossible until 30 April due to the allowance surrender process and/or verified emissions update process being suspended for the Member State's registry \\
+		-     & No Compliance Obligations \\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+	\caption*{\footnotesize \emph{Notes:} Compliance codes (id) as extracted from the EUTL.}
+	\vspace{0ex}
+\end{table}%
+
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{transaction\_type\_main.csv}: Main Transaction Types in the EUTL}\label{tab:transTypesMain}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} ll @{}}
+		\toprule
+		\toprule
+		\textbf{id} & \textbf{description} \\
+		\midrule
+		1     & Issuance - Initial creation of a unit \\
+		2     & Conversion - Transformation of unit to create an ERU \\
+		3     & External - External transfer of unit between registries \\
+		4     & Cancellation - Internal transfer of unit \\
+		5     & Retirement - Internal transfer of unit \\
+		6     & Replacement - Internal transfer of unit \\
+		7     & Carry-over - Change of validity to subsequent CP \\
+		8     & Expiry Date Change \\
+		10    & Internal - Internal transfer of unit/supplementary program transaction \\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+	\caption*{\footnotesize \emph{Notes:} Transaction codes (id) as extracted from the EUTL.}
+	\vspace{0ex}
+\end{table}%
+
+% Table generated by Excel2LaTeX from sheet 'data_transSupp'
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{transaction\_type\_supplementary.csv}: Supplementary Transaction Types in the EUTL}\label{tab:transTypesSup}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} lp{4cm}clp{3cm} @{}}
+		\toprule
+		\toprule
+		\textbf{id} & \textbf{description} &       & \multicolumn{1}{l}{\textbf{id}} & \multicolumn{1}{l}{\textbf{description}} \\
+		\midrule
+		0     & No Supplementary Type &       & 52    & \multicolumn{1}{l}{Allowance issue (2008-2012 onwards)} \\
+		1     & Allowance cancellation (2005-2007) &       & 53    & \multicolumn{1}{l}{Allowance allocation} \\
+		2     & Allowance surrender &       & 54    & \multicolumn{1}{l}{Force-majeure allowance issue} \\
+		3     & Retirement (2005-2007) &       & 55    & \multicolumn{1}{l}{Correction to allowances} \\
+		4     & Surrender Kyoto Units from AOHA &       & 56    & \multicolumn{1}{l}{Conversion prior to Transfer to SOP (Conversion A)} \\
+		12    & ESD KP Transfer from PHA &       & 57    & \multicolumn{1}{l}{Conversion of AAUs or RMUs into ERUs (Conversion B)} \\
+		16    & ESD Return to KP after Compliance &       & 61    & \multicolumn{1}{l}{Surrendered Allowance Conversion} \\
+		19    & Retirement ESD Used Units &       & 62    & \multicolumn{1}{l}{Unallocated Allowance Conversion} \\
+		21    & External transfer (2005-2007) &       & 71    & \multicolumn{1}{l}{Exchange} \\
+		22    & External transfer between art63a registries &       & 72    & \multicolumn{1}{l}{Exchanged} \\
+		24    & Issuance - Internal transfer Art 63a &       & 75    & \multicolumn{1}{l}{75-AAU set aside} \\
+		26    & Conversion of art63a allowances &       & 82    & \multicolumn{1}{l}{Reversal of surrender} \\
+		30    & Issuance of aviation allowances &       & 84    & \multicolumn{1}{l}{Reversal of Surrender Kyoto Units from AOHA} \\
+		31    & Issuance of general allowances &       & 86    & \multicolumn{1}{l}{Reverse of Excess Allocation} \\
+		33    & Aviation allowances - Banking &       & 90    & \multicolumn{1}{l}{Deletion of allowances} \\
+		34    & General allowances - Banking &       & 91    & \multicolumn{1}{l}{Cancellation against deletion} \\
+		35    & Allocation of aviation allowances &       & 92    & \multicolumn{1}{l}{Reversal of Allowance Surrender} \\
+		36    & Allocation of general allowances &       & 93    & \multicolumn{1}{l}{Correction} \\
+		37    & Auction delivery &       & 94    & \multicolumn{1}{l}{Reversal of Allowance Cancellation} \\
+		38    & Carry Over of CERs or ERUs converted from AAUs &       & 104   & \multicolumn{1}{l}{Reversal of cancellation} \\
+		39    & Carry Over of AAUs &       & 124   & \multicolumn{1}{l}{Reversal of cancellation} \\
+		41    & Cancellation and replacement &       & 135   & \multicolumn{1}{l}{Allocation of aviation allowances} \\
+		42    & Transfer Entitlement &       & 136   & \multicolumn{1}{l}{Allocation of general allowances} \\
+		43    & Carry Over Entitlement &       & 142   & \multicolumn{1}{l}{Reversal Transfer Entitlement} \\
+		44    & ESD Reversal KP Transfer &       & 143   & \multicolumn{1}{l}{Reversal Carry Over Entitlement} \\
+		45    & Article 3.7ter Cancellation &       & 171   & \multicolumn{1}{l}{Reversal of Exchange} \\
+		46    & Ambition Increase Cancellation &       & 172   & \multicolumn{1}{l}{Reversal of Transfer of Exchanged} \\
+		47    & Transfer to SOP for First External Transfer of AAUs &       & 190   & \multicolumn{1}{l}{Reversal of deletion} \\
+		48    & Mandatory Cancellation &       & 272   & \multicolumn{1}{l}{Reversal of Issuance of Exchanged} \\
+		49    & Transfer to SOP for Conversion &       & 272   & \multicolumn{1}{l}{Reversal of Issuance of Exchanged} \\
+		51    & Allowance issue (2005-2007) &       &       &  \\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+	\caption*{\footnotesize \emph{Notes:} Transaction codes (id) as extracted from the EUTL.}
+	\vspace{0ex}
+\end{table}%
+
+% Table generated by Excel2LaTeX from sheet 'Tabelle2'
+\begin{table}[htbp]\scriptsize
+	\caption{\textit{unit\_types.csv}: Types of allowances}\label{tab:unitType}
+	\centering
+	\begin{tabular*}{\textwidth}{@{}@{\extracolsep{\fill}} lp{10cm} @{}}
+		\toprule
+		\toprule
+		\textbf{id} & \textbf{description} \\
+		\midrule
+		RMU   & RMU - Removal Unit \\
+		CER   & CER - Certified Emission Reduction Unit \\
+		ERU\_RMU & ERU - Emission Reduction Unit (Converted from an RMU) \\
+		tCER  & tCER - Temporary CER \\
+		EUA\_2013 & General allowances \\
+		EUA\_2008 & AAU - Assigned Amount Unit - Allowance issued for the 2008-2012 period and subsequent 5-year periods and is converted from an AAU \\
+		ERU   & ERU - Emission Reduction Unit (Converted from an AAU) \\
+		EUA2005 & Allowance issued for the 2005-2007 period and not converted from an AAU or other Kyoto unit \\
+		AEUA  & Aviation allowances \\
+		AAU   & AAU - Assigned Amount Unit \\
+		\bottomrule
+		\bottomrule
+	\end{tabular*}%
+	\vspace{-3ex}
+	\caption*{\footnotesize \emph{Notes:} Description extracted from EUTL webpage, own codes (id) imposed.}
+	\vspace{0ex}
+\end{table}%
+
+\end{document}

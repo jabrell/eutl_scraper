@@ -8,10 +8,12 @@ def get_compliance_status(x):
         return x[:1]
     return x
 
+
 def get_compliance_status_update(x):
     if "*" in x: 
         return True
     return False
+
 
 class InstallationItem(scrapy.Item):
     registryCode =  scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
@@ -79,4 +81,13 @@ class SurrenderingDetailsItem(scrapy.Item):
     installationURL = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     surrenderingURL = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
 
-    
+
+class EntitlementItem(scrapy.Item):
+    registry = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    entityType = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    installationName = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    installationID = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    euEntitlement = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    chEntitlement = scrapy.Field(input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+
+
