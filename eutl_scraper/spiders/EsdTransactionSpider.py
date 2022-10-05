@@ -1,10 +1,7 @@
 import scrapy
 from scrapy.loader import ItemLoader
-from eutl_scraper.items import EsdTransactionItem
+from eutl_scraper.items import EsdTransactionItem, EsdAllocationItem, EsdTransactionBlockItem
 import urllib.parse
-
-from eutl_scraper.items.transactionItems import EsdTransactionBlockItem
-import sys
 
 
 class EsdTransactionSpider(scrapy.Spider):
@@ -133,3 +130,52 @@ class EsdTransactionSpider(scrapy.Spider):
             for i, c in enumerate(cols):
                 l.add_css(c, f"td:nth-child({i+1})>span.classictext::text")
             yield l.load_item()
+
+
+class EsdAllocationSpider(scrapy.Spider):
+    name = "esd_allocations"
+    next_page_number = 1  # zero indexed
+    max_pages = None
+    base_url = "https://ec.europa.eu/clima/ets/esdAllocations.do"
+    params_search = {
+        "languageCode": "en",
+        "esdRegistry": -1,
+        "esdYear": "",
+        "search": "Search",
+        "currentSortSettings": "",
+        "resultList.currentPageNumber": 0,
+        "nextList": "Next>"
+    }
+
+    start_urls = [
+        f"{base_url}?{urllib.parse.urlencode(params_search)}"]
+
+    def __init__(self,  **kwargs):
+        super().__init__(**kwargs)
+
+    def parse(self, response):
+        if not self.max_pages:
+            self.max_pages = int(response.css(
+                "input[name='resultList.lastPageNumber']").attrib["value"]) - 1
+
+        cols = ["memberState", "year", "accountStatus",
+                "accountIdentifier", "allocation"]
+
+        rows = response.css("table#tblAllocations>tr")
+        for row in rows[2:]:
+            l = ItemLoader(item=EsdAllocationItem(),
+                           selector=row, response=response)
+            for i, c in enumerate(cols):
+                l.add_css(c, f"td:nth-child({i+1})>font.classictext::text")
+            yield l.load_item()
+
+        # navigate to next page of transaction overview
+        self.params_search.pop("search", None)
+        self.params_search["resultList.currentPageNumber"] = self.next_page_number
+        next_page = f"{self.base_url}?{urllib.parse.urlencode(self.params_search)}"
+        if self.next_page_number <= self.max_pages:
+            self.next_page_number += 1
+            if (self.next_page_number-1) % 100 == 0:
+                print("Process transaction overview %d of %d" %
+                      (self.next_page_number, self.max_pages))
+            yield response.follow(next_page, callback=self.parse)

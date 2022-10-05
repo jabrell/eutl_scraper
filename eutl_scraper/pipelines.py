@@ -3,7 +3,9 @@ from itemadapter import ItemAdapter
 from eutl_scraper.items import (AccountItem, ContactItem,
                                 InstallationItem, ComplianceItem,
                                 SurrenderingDetailsItem, TransactionItem,
-                                EntitlementItem, EsdTransactionItem)
+                                EntitlementItem, EsdTransactionItem,
+                                TransactionBlockItem, AccountIDMapItem,
+                                EsdTransactionBlockItem, EsdAllocationItem)
 from eutl_scraper.own_settings import DIR_PARSED
 import os.path
 
@@ -32,7 +34,9 @@ class EutlScraperPipeline:
             "output_file_name": DIR_PARSED + 'esdTransactions.csv', "appendExisting": True},
         {"item": EsdTransactionBlockItem, "rows": [], "header": [],
             "output_file_name": DIR_PARSED + 'esdTransactionBlocks.csv', "appendExisting": True},
-        {"item": EntitlementItem, "rows": [], "header": [], 
+        {"item": EsdAllocationItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'esdAllocation.csv', "appendExisting": True},
+        {"item": EntitlementItem, "rows": [], "header": [],
             "output_file_name": DIR_PARSED + 'entitlements.csv', "appendExisting": False},
     ]
 
@@ -42,7 +46,7 @@ class EutlScraperPipeline:
                 adapter = dict(ItemAdapter(item))
                 it["rows"].append(adapter)
                 it["header"] = [k for k in item.fields.keys()]
-                
+
     def close_spider(self, spider):
         for it in self.itemsToProcess:
             if len(it["rows"]) == 0:

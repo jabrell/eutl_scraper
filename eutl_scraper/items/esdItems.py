@@ -3,30 +3,34 @@ from itemloaders.processors import TakeFirst, MapCompose
 from ._utils import strip_values, convert_relative_url
 
 
-class TransactionItem(scrapy.Item):
+class EsdTransactionItem(scrapy.Item):
     transactionID = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
     transactionType = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
     transactionDate = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
-    transactionStatus = scrapy.Field(input_processor=MapCompose(
-        strip_values), output_processor=TakeFirst())
     transferringRegistry = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
-    transferringAccountType = scrapy.Field(
+    transferringMemberState = scrapy.Field(
         input_processor=MapCompose(strip_values), output_processor=TakeFirst())
-    transferringAccountName = scrapy.Field(
-        input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    transferringYear = scrapy.Field(input_processor=MapCompose(
+        strip_values), output_processor=TakeFirst())
     transferringAccountIdentifier = scrapy.Field(
-        input_processor=MapCompose(strip_values), output_processor=TakeFirst())
-    transferringAccountHolderName = scrapy.Field(
         input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     acquiringRegistry = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
+    acquiringMemberState = scrapy.Field(input_processor=MapCompose(
+        strip_values), output_processor=TakeFirst())
+    acquiringYear = scrapy.Field(input_processor=MapCompose(
+        strip_values), output_processor=TakeFirst())
+    acquiringAccountIdentifier = scrapy.Field(
+        input_processor=MapCompose(strip_values), output_processor=TakeFirst())
+    amount = scrapy.Field(input_processor=MapCompose(
+        strip_values), output_processor=TakeFirst())
 
 
-class TransactionBlockItem(scrapy.Item):
+class EsdTransactionBlockItem(scrapy.Item):
     transactionID = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
     transactionDate = scrapy.Field(input_processor=MapCompose(
@@ -47,20 +51,12 @@ class TransactionBlockItem(scrapy.Item):
         input_processor=MapCompose(strip_values), output_processor=TakeFirst())
     transferringAccountName = scrapy.Field(
         input_processor=MapCompose(strip_values), output_processor=TakeFirst())
-    transferringRegistry = scrapy.Field(input_processor=MapCompose(
+    transferringAccountIdentifier = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
-    transferringAccountIdentifier = scrapy.Field(
-        input_processor=MapCompose(strip_values), output_processor=TakeFirst())
-    transferringAccountURL = scrapy.Field(input_processor=MapCompose(
-        strip_values, convert_relative_url), output_processor=TakeFirst())
     acquiringAccountName = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
     acquiringAccountIdentifier = scrapy.Field(
         input_processor=MapCompose(strip_values), output_processor=TakeFirst())
-    acquiringRegistry = scrapy.Field(input_processor=MapCompose(
-        strip_values), output_processor=TakeFirst())
-    acquiringAccountURL = scrapy.Field(input_processor=MapCompose(
-        strip_values, convert_relative_url), output_processor=TakeFirst())
     lulucfActivity = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
     projectID = scrapy.Field(input_processor=MapCompose(
@@ -68,4 +64,17 @@ class TransactionBlockItem(scrapy.Item):
     projectTrack = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
     expiryDate = scrapy.Field(input_processor=MapCompose(
+        strip_values), output_processor=TakeFirst())
+
+
+class EsdAllocationItem(scrapy.Item):
+    memberState = scrapy.Field(input_processor=MapCompose(
+        strip_values), output_processor=TakeFirst())
+    year = scrapy.Field(input_processor=MapCompose(
+        strip_values), output_processor=TakeFirst())
+    accountStatus = scrapy.Field(input_processor=MapCompose(
+        strip_values), output_processor=TakeFirst())
+    accountIdentifier = scrapy.Field(input_processor=MapCompose(
+        strip_values), output_processor=TakeFirst())
+    allocation = scrapy.Field(input_processor=MapCompose(
         strip_values), output_processor=TakeFirst())
