@@ -5,7 +5,9 @@ from eutl_scraper.items import (AccountItem, ContactItem,
                                 SurrenderingDetailsItem, TransactionItem,
                                 EntitlementItem, EsdTransactionItem,
                                 TransactionBlockItem, AccountIDMapItem,
-                                EsdTransactionBlockItem, EsdAllocationItem)
+                                EsdTransactionBlockItem, EsdAllocationItem,
+                                EsdComplianceItem)
+from eutl_scraper.items.esdItems import EsdEntitlementItem
 from eutl_scraper.own_settings import DIR_PARSED
 import os.path
 
@@ -36,8 +38,13 @@ class EutlScraperPipeline:
             "output_file_name": DIR_PARSED + 'esdTransactionBlocks.csv', "appendExisting": True},
         {"item": EsdAllocationItem, "rows": [], "header": [],
             "output_file_name": DIR_PARSED + 'esdAllocation.csv', "appendExisting": True},
+        {"item": EsdComplianceItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'esdCompliance.csv', "appendExisting": True},
         {"item": EntitlementItem, "rows": [], "header": [],
             "output_file_name": DIR_PARSED + 'entitlements.csv', "appendExisting": False},
+        {"item": EsdEntitlementItem, "rows": [], "header": [],
+            "output_file_name": DIR_PARSED + 'esdEntitlement.csv', "appendExisting": True},
+
     ]
 
     def process_item(self, item, spider):

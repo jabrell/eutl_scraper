@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 test.*
 _jab*
+*jab_*
 
 # C extensions
 *.so
