@@ -2,6 +2,7 @@ import scrapy
 from scrapy.loader import ItemLoader
 from eutl_scraper.items import EsdTransactionItem, EsdAllocationItem, EsdTransactionBlockItem
 import urllib.parse
+import sys
 
 from eutl_scraper.items.esdItems import EsdComplianceItem, EsdEntitlementItem
 
@@ -91,6 +92,7 @@ class EsdTransactionSpider(scrapy.Spider):
                                             "transactionDate": transactionDate,
                                             "transactionType": transactionType,
                                             "transactionURL": url,
+                                            "isFirstPage": True
                                             })
             yield l.load_item()
 
@@ -105,6 +107,9 @@ class EsdTransactionSpider(scrapy.Spider):
             yield response.follow(next_page, callback=self.parse)
 
     def parse_transaction_blocks(self, response):
+        isFirstPage = response.meta.get("isFirstPage", True)
+        if response.meta["transactionID"] == "EU405464":
+            print(response.url)
         cols = [
             "originatingRegistry",
             "unitType",
@@ -132,6 +137,24 @@ class EsdTransactionSpider(scrapy.Spider):
             for i, c in enumerate(cols):
                 l.add_css(c, f"td:nth-child({i+1})>span.classictext::text")
             yield l.load_item()
+
+        if isFirstPage:
+            nextButton = response.css(
+                "input[name='resultList.lastPageNumber']")
+            if nextButton:
+                max_pages = int(nextButton.attrib["value"])
+                print("___________________________________________________")
+                print(max_pages)
+                print("___________________________________________________")
+                for i in range(1, max_pages):
+                    url = response.url + "&resultList.currentPageNumber=%d&nextList=Next>" % i
+                    yield response.follow(url, callback=self.parse_transaction_blocks,
+                                          meta={"transactionID": response.meta["transactionID"],
+                                                "transactionDate": response.meta["transactionDate"],
+                                                "transactionType": response.meta["transactionType"],
+                                                "transactionURL": url,
+                                                "isFirstPage": False
+                                                })
 
 
 class EsdAllocationSpider(scrapy.Spider):
