@@ -3,10 +3,11 @@ from .model import Account, Compliance, Installation
 from sqlalchemy import and_
 import pandas as pd
 from collections import Counter
+import os 
 
 
 def link_foha_installations(session, fn_out, min_score=0.75,
-                            acceptDuplicates=False):
+                            acceptDuplicates=False, overwrite_exiting=False):
     """ Linking between former operator holding accounts and 
     installations. 
     :param session: <sqlalchemy.orm.Session>    
@@ -14,9 +15,15 @@ def link_foha_installations(session, fn_out, min_score=0.75,
     :param min_score: <float> minimum score to accept matches. Score is provided
                               as percentage of transactions over years matched by installation
                               Default: 0.75
+    overwrite_exiting: <boolean> true to overwrite existing file
     """
-    print("------- Establish link between former operator holding accounts and installations")
-    df = get_link_foha_installation(session=session, 
+    
+    if os.path.isfile(fn_out) and not overwrite_exiting:
+        print("------- Matching file alread exists. Take existing one. ")
+        df = pd.read_csv(fn_out)
+    else:
+        print("------- Establish link between former operator holding accounts and installations")
+        df = get_link_foha_installation(session=session, 
                                     fn_out=fn_out, min_score=min_score)
     print("------- Insert linking to database")
     insert_link_foha_installations(df, session, acceptDuplicates=acceptDuplicates)

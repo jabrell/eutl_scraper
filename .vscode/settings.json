@@ -2,5 +2,6 @@
     "python.formatting.provider": "black",
     "[python]": {
         "editor.formatOnPaste": false
-    }
+    },
+    "editor.formatOnSave": true,
 }

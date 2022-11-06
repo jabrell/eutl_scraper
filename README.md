@@ -57,6 +57,14 @@ Data on offset entitlements are downloaded using
 scrapy crawl entitlements -L INFO
 ```
 
+# Effort Sharing Data
+Downloading the effort sharing data, follow the same principle. Available spiders are
+```
+scrapy crawl esd_transactions -L INFO
+scrapy crawl esd_allocations -L INFO
+scrapy crawl esd_compliance -L INFO
+scrapy crawl esd_entitlement -L INFO
+```
 
 # Build the database
 

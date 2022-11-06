@@ -7,7 +7,6 @@ from eutl_database import (
     DataAccessLayer,
 )
 import os.path
-import sys
 
 
 if __name__ == "__main__":
@@ -40,7 +39,7 @@ if __name__ == "__main__":
     else:
         print("##### Use already existing file for installation coordinates")
 
-    # create csv tables for database creation
+    # # create csv tables for database creation
     create_csv_tables(
         dir_in,
         dir_out,
@@ -58,10 +57,7 @@ if __name__ == "__main__":
     create_database(dal, dir_out)
 
     # try to establish the mapping between current and former oerpator holding accounts
-    if not os.path.isfile(fn_ohaMatching):
-        print("Start matching of former and existing operator holding accounts")
-        link_foha_installations(dal.Session(), fn_out=fn_ohaMatching)
-    else:
-        print("Matching former to existing operator holding accounts already exits.")
+    link_foha_installations(dal.Session(), fn_out=fn_ohaMatching)
+
     # export the database
     export_database(dal, dir_final)

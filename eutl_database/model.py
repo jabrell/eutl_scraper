@@ -13,7 +13,11 @@ class Transaction(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     transactionID = Column(String(100))
+    transactionBlock = Column(Integer())
+    tradingSystem = Column(String(20))
     date = Column(DateTime)
+    acquiringYear = Column(Integer())
+    transferringYear = Column(Integer())
     transactionTypeMain_id = Column(Integer, ForeignKey("transaction_type_main_code.id"))
     transactionTypeSupplementary_id = Column(Integer, ForeignKey("transaction_type_supplementary_code.id"))
     transferringAccount_id = Column(Integer, ForeignKey("account.id"))
@@ -45,7 +49,10 @@ class Account(Base):
     __tablename__ = "account"
 
     id = Column(Integer(), primary_key=True)
-    accountIDEutl = Column(Integer)
+    tradingSystem = Column(String(20))
+    accountIDEutl = Column(Integer())
+    accountIDESD = Column(String(50))
+    yearValid = Column(Integer())
     accountIDtransactions = Column(String(100))
     name = Column(String(250))
     registry_id = Column(String(10), ForeignKey("country_code.id"), index=True)
@@ -78,6 +85,7 @@ class Account(Base):
 class AccountHolder(Base):
     __tablename__ = "account_holder"
     id = Column(Integer(), primary_key=True)
+    tradingSystem = Column(String(20))
     name = Column(String(300))
     addressMain = Column(String(300))
     addressSecondary = Column(String(300))
@@ -178,6 +186,24 @@ class Compliance(Base):
         return "<Compliance(%r, %r): allocated: %r, surrendered: %r, verified: %r>" % (self.installation_id, self.year,
                                                                                        self.allocatedTotal, self.surrendered,
                                                                                        self.verified)
+
+
+class EsdCompliance(Base):
+    """compliance data for effor sharing"""
+    __tablename__ = "esd_compliance"    
+    account_id = Column(Integer(), ForeignKey("account.id"), primary_key=True)
+    year = Column(Integer(), primary_key=True)
+    memberstate_id = Column(String(10), ForeignKey("country_code.id"))
+    balance = Column(Integer())
+    penalty = Column(Integer())
+    allocated = Column(Integer())
+    verified = Column(Integer())
+    surrendered = Column(Integer())
+    surrenderedAea = Column(Integer()) 
+    surrenderedCredits = Column(Integer()) 
+    compliance_id = Column(String(100), ForeignKey("compliance_code.id"))
+    created_on = Column(DateTime(), default=datetime.now)
+    updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
 
 
 class Surrender(Base):
