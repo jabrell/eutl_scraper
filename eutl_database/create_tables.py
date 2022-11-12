@@ -319,6 +319,7 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
         "transactionTypeMain_id": "transactionTypeMain_id",
         "transactionTypeSupplementary_id": "transactionTypeSupplementary_id",
         "unitType": "unitType_id",
+        "projectID": "project_id",
         "acquiringAccount_id": "acquiringAccount_id",
         "transferringAccount_id": "transferringAccount_id",
         "amount": "amount",
