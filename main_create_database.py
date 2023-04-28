@@ -11,7 +11,7 @@ import os.path
 
 if __name__ == "__main__":
     dir_in = "./data/parsed/"  # directory with data as provided by scarper
-    # directory for csv tables to be importated into the databse
+    # directory for csv tables to be imported into the database
     dir_out = "./data/tables/"
     dir_final = "./data/final/"  # final directory for database export
     fn_nace_codes = "./data/additional/nace_all.csv"  # table with all nace codes
@@ -53,10 +53,10 @@ if __name__ == "__main__":
         user="JanAdmin", host="localhost", db="eutl2022", passw="1234"
     )
     dal = DataAccessLayer(**localConnectionSettings)
-    dal.empty_database(askConfirmation=False)
+    dal.clear_database(askConfirmation=False)
     create_database(dal, dir_out)
 
-    # try to establish the mapping between current and former oerpator holding accounts
+    # try to establish the mapping between current and former operator holding accounts
     link_foha_installations(dal.Session(), fn_out=fn_ohaMatching)
 
     # export the database

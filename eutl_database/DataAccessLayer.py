@@ -11,9 +11,17 @@ import csv
 class DataAccessLayer:
     """Class managing database access"""
 
-    def __init__(self, user, host, db, passw,
-                 echo=False, encoding="utf-8", connect=True,
-                 base=None):
+    def __init__(
+        self,
+        user,
+        host,
+        db,
+        passw,
+        echo=False,
+        encoding="utf-8",
+        connect=True,
+        base=None,
+    ):
         """Constructor for data access class.
         Default access is to local database
         :param user: <string> user name
@@ -29,7 +37,9 @@ class DataAccessLayer:
         self.user = user
         self.host = host
         self.db = db
-        if base is None: # no custum declarative base, so use the one provided by eutl orm
+        if (
+            base is None
+        ):  # no custum declarative base, so use the one provided by eutl orm
             self.Base = Base
         else:
             self.Base = base
@@ -38,27 +48,30 @@ class DataAccessLayer:
         self.encoding = encoding
         self.echo = echo
         if connect:
-            self.connect()            
-        
+            self.connect()
 
     def connect(self):
-        """ Connects to database """
+        """Connects to database"""
         if self.engine is None:
-            self.engine = create_engine(self.conn_string, echo=self.echo, encoding=self.encoding)
+            self.engine = create_engine(
+                self.conn_string, echo=self.echo, encoding=self.encoding
+            )
             self.Base.metadata.create_all(self.engine)
             self.metadata = self.metadata = MetaData(bind=self.engine)
             self.metadata.reflect()
             self.Session = sessionmaker(bind=self.engine)
             self.session = self.Session()
 
-    def empty_database(self, askConfirmation=True):
-        """ Deletes all tables from database connectd by engine 
+    def clear_database(self, askConfirmation=True):
+        """Deletes all tables from database connected by engine
         askConfirmation: <boolean> true to ask for typed confirmation"""
         self.metadata = MetaData(bind=self.engine)
         self.metadata.reflect()
         if len(self.engine.table_names()) > 0:
             if askConfirmation:
-                confirm = getpass("Do really want to drop all tables? Enter Yes for confirmation: ")
+                confirm = getpass(
+                    "Do really want to drop all tables? Enter Yes for confirmation: "
+                )
             else:
                 confirm = "yes"
             if confirm.lower() == "yes":
@@ -72,9 +85,8 @@ class DataAccessLayer:
                 print("#### Tables still in database ####")
         self.metadata.reflect()
         self.Base.metadata.create_all(self.engine)
-        
-    def insert_df(self, df, obj, update=False,
-                      bulk_insert=False, verbose=False):
+
+    def insert_df(self, df, obj, update=False, bulk_insert=False, verbose=False):
         """Inserts dataframe to database using session and ORM object.
         Dataframe has to have columns matching fields of the OMR objects
         :param df: <pd.DataFrame> with data
@@ -119,12 +131,19 @@ class DataAccessLayer:
             self.session.add_all(to_add)
         self.session.commit()
 
-
-    def insert_df_large(self, df, name, integerColumns=None,
-                        schema=None, if_exists="fail", 
-                        index=False, index_label=None, 
-                        chunksize=1000000, dtype=None):
-        """ Wrapper for pandas to_sql function using a more efficient insertion function.
+    def insert_df_large(
+        self,
+        df,
+        name,
+        integerColumns=None,
+        schema=None,
+        if_exists="fail",
+        index=False,
+        index_label=None,
+        chunksize=1000000,
+        dtype=None,
+    ):
+        """Wrapper for pandas to_sql function using a more efficient insertion function.
         Likely only works under psycopg2 and postrgres
         :parm df: <pd.DataFrame> to be inserted
         :param name: <string> name if table
@@ -139,8 +158,9 @@ class DataAccessLayer:
                     If a dictionary is used, the keys should be the column names and the values should be the SQLAlchemy types or strings for the sqlite3 legacy mode.
                     If a scalar is provided, it will be applied to all columns.
         """
+
         def psql_insert_copy(table, con, keys, data_iter):
-            """ Execute SQL statement inserting data
+            """Execute SQL statement inserting data
             :param table : pandas.io.sql.SQLTable
             :parm con : sqlalchemy.engine.Engine or sqlalchemy.engine.Connection
             :param keys : list of str Column names
@@ -153,78 +173,85 @@ class DataAccessLayer:
                 writer.writerows(data_iter)
                 s_buf.seek(0)
 
-                columns = ', '.join('"{}"'.format(k) for k in keys)
+                columns = ", ".join('"{}"'.format(k) for k in keys)
                 if table.schema:
-                    table_name = '{}.{}'.format(table.schema, table.name)
+                    table_name = "{}.{}".format(table.schema, table.name)
                 else:
                     table_name = table.name
 
-                sql = 'COPY {} ({}) FROM STDIN WITH CSV'.format(
-                    table_name, columns)
+                sql = "COPY {} ({}) FROM STDIN WITH CSV".format(table_name, columns)
                 cur.copy_expert(sql=sql, file=s_buf)
 
         def df_to_list_of_chuncks(df, chunksize=100000):
-            lst_df = [df[i: i + chunksize] for i in range(0, df.shape[0], chunksize)]
+            lst_df = [df[i : i + chunksize] for i in range(0, df.shape[0], chunksize)]
             return lst_df
 
         def prepare_int_cols_for_sql_insert(df, int_cols):
-            """ For fast insertion into the database using the csv IO stream we need interegers to be properly formated.
+            """For fast insertion into the database using the csv IO stream we need interegers to be properly formated.
             However, as long as we have Null values in the column, the column is of type float and integers are foramtted with
             .0 at the end. Thus we cast these integers to string with correct format.
             :param df: <pd.DataFrame>
             :param int_cols: <list:string> names of columns to be converted
             """
+
             def int_to_string(x):
                 try:
                     return "%d" % x
                 except (TypeError, ValueError):
                     return x
+
             for c in int_cols:
                 df[c] = df[c].map(int_to_string)
-            return df         
+            return df
 
         # convert int columns
         if integerColumns is not None:
             df_ = prepare_int_cols_for_sql_insert(df, int_cols=integerColumns)
         else:
             df_ = df.copy()
-            
+
         # create chunks of dataframe and slice over it
         lst_df = df_to_list_of_chuncks(df_, chunksize=chunksize)
         for i, df_out in enumerate(lst_df):
             if (i % 10 == 0) and (i > 0):
                 print("#### Commit chunck %d of %d" % ((i + 1), len(lst_df)))
             # insert data
-            df_out.to_sql(name=name, con=self.session.get_bind(), 
-                          if_exists=if_exists, schema=schema,
-                          index=index, index_label=index_label,
-                          dtype=dtype,
-                          method=psql_insert_copy)
-        
+            df_out.to_sql(
+                name=name,
+                con=self.session.get_bind(),
+                if_exists=if_exists,
+                schema=schema,
+                index=index,
+                index_label=index_label,
+                dtype=dtype,
+                method=psql_insert_copy,
+            )
+
     @staticmethod
     def _replace_null(df):
         """replaces nan and nat in dataframe by None values for database insertion"""
         df_ = df.copy()
-        dt_cols = df_.select_dtypes(include=['datetime64']).columns
-        for c in dt_cols:   # convert datetimes to objects to replace nat
+        dt_cols = df_.select_dtypes(include=["datetime64"]).columns
+        for c in dt_cols:  # convert datetimes to objects to replace nat
             df_[c] = df_[c].astype("object")
         df_ = df_.where(df.notnull(), None)
         return df_
-    
-    
+
     @staticmethod
     def prepare_int_cols_for_sql_insert(df, int_cols):
-        """ For fast insertion into the database using the csv IO stream we need interegers to be properly formated.
+        """For fast insertion into the database using the csv IO stream we need interegers to be properly formated.
         However, as long as we have Null values in the column, the column is of type float and integers are foramtted with
         .0 at the end. Thus we cast these integers to string with correct format.
         :param df: <pd.DataFrame>
         :param int_cols: <list:string> names of columns to be converted
         """
+
         def int_to_string(x):
             try:
                 return "%d" % x
             except (TypeError, ValueError):
                 return x
+
         for c in int_cols:
             df[c] = df[c].map(int_to_string)
-        return df    
+        return df

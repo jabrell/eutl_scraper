@@ -28,7 +28,7 @@ scrapy crawl accounts -L INFO
 ```
 
 ## Transaction data
-Transaction data are compiled from the transaction list as provided on the [EU Union Registry Page](https://ec.europa.eu/clima/eu-action/eu-emissions-trading-system-eu-ets/union-registry_en#tab-0-1). The data provided include the unit type transferred and account informations. However, they do no link the same account identifiers as provided by the account database. To compile the data and link them to downloaded account data run:
+Transaction data are compiled from the transaction list as provided on the [EU Union Registry Page](https://ec.europa.eu/clima/eu-action/eu-emissions-trading-system-eu-ets/union-registry_en#tab-0-1). The data provided include the unit type transferred and account informations. However, they do not link the same account identifiers as provided by the account database. To compile the data and link them to downloaded account data run:
 
 ```
 python main_transactions.py
