@@ -164,6 +164,7 @@ def link_accounts(dir_in, df=None, tries=3, wait=5):
     df.to_csv(dir_in + "transactionBlocks.csv", index=False) 
     return
 
+
 def download_file(url, parms=None, outfile=None, tries=1, wait=0, test_success=None):
     """Downloads file and checks for reponse status
     :param url: <string> basic url for the query

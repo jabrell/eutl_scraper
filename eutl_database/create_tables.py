@@ -97,8 +97,6 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     df_tb = pd.read_csv(fn_trans_blocks, parse_dates=["transactionDate"])
     # TODO for unclear reasons we currently have duplicated transaction data
     # TODO check in spider
-    df_t = df_t.drop_duplicates(subset="transactionID")
-    df_tb = df_tb.drop_duplicates(subset=["transactionID", "projectID"])
     df_c = pd.read_csv(fn_compliance)
     df_acc_euets = pd.read_csv(dir_out + "accounts.csv", low_memory=False)
     df_acc_holder_euets = pd.read_csv(dir_out + "accountHolders.csv")
@@ -271,8 +269,6 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
         "transactionType",
         "transactionURL",
     ]
-    # TODO Why do we have duplicated rows in transaction blocks for esd?
-    df_tb = df_tb.drop(cols, axis=1)
     cols = [
         "transactionID",
         "projectID",
@@ -338,9 +334,7 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     # append tables to existing once and save
     df_acc = pd.concat([df_acc_euets, df_acc])
     df_acc_holder = pd.concat([df_acc_holder_euets, df_acc_holder])
-    # TODO currently ignore esd transactions
-    # df_trans = pd.concat([df_trans_euets, df_trans])
-    df_trans = df_trans_euets.copy()
+    df_trans = pd.concat([df_trans_euets, df_trans])
     if save_data:
         df_acc.to_csv(dir_out + "accounts.csv", index=False)
         df_acc_holder.to_csv(dir_out + "accountHolders.csv", index=False)
