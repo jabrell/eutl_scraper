@@ -4,13 +4,16 @@ from eutl_data_augmentation import (
     parse_leakage_lists,
     extract_nace_scheme,
     impute_orbis_identifiers,
+    create_csv_tables,
 )
+from eutl_data_augmentation.create_tables import create_table_account
 
 
 def ingest_data(dir_parsed, dir_additional):
     """Ingest several types of data into the eutl data
     :param dir_in: <str> path to directory with incoming eutl data
     :param dir_additional: <str> path to directory with additional data
+    :return: <dict> with filenames for newly created files
     """
     # add coordinates to installations
     fn_coordinates = dir_additional + "/installation_coordinates.csv"
@@ -39,19 +42,36 @@ def ingest_data(dir_parsed, dir_additional):
     fn_out = dir_parsed + "accounts_w_orbis.csv"
     impute_orbis_identifiers(fn_jrc, fn_acc, fn_out)
 
+    return {
+        "accounts_w_orbis": fn_out,
+        "nace_installations": fn_nace_installations,
+        "nace_scheme": fn_nace_scheme,
+        "location_installations": fn_coordinates,
+    }
+
 
 if __name__ == "__main__":
+    # directories
     dir_parsed = "./data/parsed/"  # directory with data as provided by scarper
     # directory for csv tables to be imported into the database
-    dir_out = "./data/tables/"
-    dir_final = "./data/final/"  # final directory for database export
+    dir_tables = "./data/tables/"
     dir_additional = "./data/additional/"
-    fn_nace_codes = "./data/additional/nace_all.csv"  # table with all nace codes
-    # table with nace code of installations
-    fn_nace = "./data/additional/nace_leakage.csv"
-    # table with installation coordinates
 
-    fn_nace_codes = "./data/additional/nace_all.csv"
-    fn_ohaMatching = dir_final + "foha_matching.csv"
+    # get additional data and impute them into existing tables
+    # file_names = ingest_data(dir_parsed, dir_additional)
+    # TODO delete only here for testing
+    file_names = {
+        "accounts_w_orbis": dir_parsed + "accounts_w_orbis.csv",
+        "nace_installations": dir_additional + "nace_leakage.csv",
+        "nace_scheme": dir_additional + "nace_scheme.csv",
+        "location_installations": dir_additional + "/installation_coordinates.csv",
+    }
 
-    ingest_data(dir_parsed, dir_additional)
+    # create cleaned and augmented csv tables
+    create_csv_tables(
+        dir_parsed,
+        dir_tables,
+        fn_coordinates=file_names["location_installations"],
+        fn_nace=file_names["nace_installations"],
+        fn_nace_codes=file_names["nace_scheme"],
+    )

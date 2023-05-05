@@ -621,19 +621,45 @@ def create_table_accountHolder(dir_in, dir_out):
     return
 
 
-def create_table_account(dir_in, dir_out):
+def create_table_account(dir_in, dir_out, useOrbis=True):
     """Create account table.
     AccountHolder table needs to be created first
     :param dir_data: <string> directory with parsed data
-    :param dir_out: <string> output directory"""
+    :param dir_out: <string> output directory
+    :param useOrbis: <boolean> use orbis data"""
     # get account data and mapping for account types
-    df_acc = pd.read_csv(
-        dir_in + "accounts.csv", parse_dates=["closingDate", "openingDate"]
+    if useOrbis:
+        fn = dir_in + "accounts_w_orbis.csv"
+    else:
+        fn = dir_in + "accounts.csv"
+    df_acc = pd.read_csv(fn, parse_dates=["closingDate", "openingDate"])
+
+    # impute account id used in transactions
+    # note that we deviate from ids used in the EUTL system (i.e., the links
+    # between pages) by having prepended the registry code
+    map_acc_id = (
+        pd.read_csv(dir_in + "account_mapping.csv")
+        .set_index("accountID")["accountIdentifierDB"]
+        .to_dict()
+    )
+    df_acc["accountIDTransactions"] = df_acc.accountID.map(map_acc_id)
+    # TODO verify that this is correct. Couldn't it be that the account simply
+    # was never involved in an transaction?
+    df_acc["isRegisteredEutl"] = df_acc["accountIDTransactions"].notnull()
+
+    # mark accounts with status "closing pending" as closed
+    # note that accounts with missing status are accounts of MT and CY
+    # in first periods. Thus, closed
+    df_acc["status"] = (
+        df_acc.status.replace({"closed": False, "open": True, "Closure Pending": False})
+        .fillna(False)
+        .astype("boolean")
     )
 
-    # renamce columns
+    # rename columns
     cols_account = {
         "accountID": "accountIDEutl",
+        "accountIdentifierDB": "accountIDTransactions",
         "accountName": "name",
         "registryCode": "registry_id",
         "accountType": "accountType_id",
@@ -643,20 +669,26 @@ def create_table_account(dir_in, dir_out):
         "commitmentPeriod": "commitmentPeriod",
         "companyRegistrationNumber": "companyRegistrationNumber",
         "installationID": "installation_id",
+        "isRegisteredEutl": "isRegisteredEutl",
     }
-    # mark accounts with status "closing pending" as closed
-    # note that accounts with missin status are accounts of MT and CY in first periods. Thus, closed
-    df_acc["status"] = (
-        df_acc.status.replace({"closed": False, "open": True, "Closure Pending": False})
-        .fillna(False)
-        .astype("boolean")
-    )
+    if useOrbis:
+        cols_account.update(
+            {
+                "jrcBvdId": "bvdId",
+                "jrcLEI": "jrcLEI",
+                "jrcRegistrationIdType": "jrcRegistrationIdType",
+                "jrcRegistrationIDStandardized": "jrcRegistrationIDStandardized",
+                "jrcOrbisName": "jrcOrbisName",
+                "jrcOrbisPostalCode": "jrcOrbisPostalCode",
+                "jrcOrbisCity": "jrcOrbisCity",
+            }
+        )
     df_acc = df_acc.rename(columns=cols_account)[cols_account.values()].copy()
 
     # impose accountTypes_ids
     df_acc.accountType_id = df_acc.accountType_id.map(map_account_type_inv)
 
-    # make installation id unique
+    # make account id unique
     def form_id(row):
         if pd.notnull(row["installation_id"]):
             return f'{row["registry_id"]}_{int(row["installation_id"])}'
@@ -680,16 +712,7 @@ def create_table_account(dir_in, dir_out):
     if len(df_new) > 0:
         df_acc = pd.concat([df_acc, df_new])
 
-    # add account identifiers used in transactions
-    map_accId = pd.read_csv(dir_in + "account_mapping.csv")
-    map_accId = map_accId.set_index("accountID")["accountIdentifierDB"].to_dict()
-    df_acc["accountIDtransactions"] = df_acc.accountIDEutl.map(
-        lambda x: map_accId.get(x)
-    )
-    df_acc["isRegisteredEutl"] = df_acc["accountIDtransactions"].notnull()
-
     # add the corresponding account holder ID
-
     mapper = (
         pd.read_csv(dir_in + "accountHolder_mapping.csv")
         .set_index("accountID")
@@ -814,7 +837,7 @@ def create_table_transaction(dir_in, dir_out):
             ),
         ]
     )
-    df_acc = pd.read_csv(dir_out + "accounts.csv")
+    df_acc = pd.read_csv(dir_out + "accounts.csv", low_memory=False)
     df_acc = pd.concat(
         [
             df_acc,
@@ -829,7 +852,7 @@ def create_table_transaction(dir_in, dir_out):
     mapper = df_map_acc.set_index("accountID")["accountIdentifierDB"].to_dict()
     df_acc.accountIdentifierDB = df_acc.accountIDEutl.map(lambda x: mapper.get(x))
     df_acc.to_csv(dir_out + "accounts.csv", index=False)
-    df_map_acc.to_csv(dir_in + "account_mapping.csv", index=False)
+    df_map_acc.to_csv(dir_in + "account_mapping_w_esd.csv", index=False)
 
     # select and rename transaction columns and save to csv
     cols_trans = {

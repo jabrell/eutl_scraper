@@ -22,32 +22,6 @@ if __name__ == "__main__":
     fn_nace_codes = "./data/additional/nace_all.csv"
     fn_ohaMatching = dir_final + "foha_matching.csv"
 
-    # check if coordinates exist, if not get them
-    if not os.path.isfile(fn_coordinates):
-        print("##### Get coordinates for installations")
-        # add you google key api key here
-        key_google = os.environ.get("GMAPKEY")
-        if key_google is not None:
-            get_installation_coordinates_google(
-                dir_in, key_google, fn_out=fn_coordinates
-            )
-        else:
-            print(
-                "##### No key for google maps api provided continue building database without coordinates"
-            )
-            fn_coordinates = None
-    else:
-        print("##### Use already existing file for installation coordinates")
-
-    # # create csv tables for database creation
-    create_csv_tables(
-        dir_in,
-        dir_out,
-        fn_coordinates=fn_coordinates,
-        fn_nace=fn_nace,
-        fn_nace_codes=fn_nace_codes,
-    )
-
     # build the database
     localConnectionSettings = dict(
         user="JanAdmin", host="localhost", db="eutl2022", passw="1234"
