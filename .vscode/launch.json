@@ -5,10 +5,17 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python:Current File",
+      "name": "data_imputation",
       "type": "python",
       "request": "launch",
       "program": "${workspaceFolder}/main_data_imputation.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "database_creation",
+      "type": "python",
+      "request": "launch",
+      "program": "${workspaceFolder}/main_create_database.py",
       "console": "integratedTerminal"
     }
   ]

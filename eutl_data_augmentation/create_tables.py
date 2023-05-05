@@ -787,7 +787,7 @@ def create_table_transaction(dir_in, dir_out):
         ]
         df_miss.columns = [
             "accountIdentifierDB",
-            "accountIDtransactions",
+            "accountIDTransactions",
             "accountName",
             "registryCode",
         ]
@@ -800,7 +800,7 @@ def create_table_transaction(dir_in, dir_out):
         df_miss.accountIdentifierDB = df_miss.accountIdentifierDB.fillna(
             df_miss.registryCode + "_unknown"
         )
-        df_miss.accountIDtransactions = df_miss.accountIDtransactions.fillna("unknown")
+        df_miss.accountIDTransactions = df_miss.accountIDTransactions.fillna("unknown")
 
     # these are accounts that are missing in the account database
     # to easily identify and to get in conflict with newly emerging

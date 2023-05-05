@@ -15,7 +15,7 @@ def export_database(dal, dir_out):
         return df
 
     get_query_df(session.query(Account)).drop(
-        ["accountIDEutl", "accountIDtransactions"], axis=1
+        ["accountIDEutl", "accountIDTransactions"], axis=1
     ).to_csv(dir_out + "account.csv", index=False)
     get_query_df(session.query(AccountHolder)).to_csv(
         dir_out + "account_holder.csv", index=False
@@ -129,11 +129,24 @@ def insert_account_tables(dal, dir_in):
         low_memory=False,
         parse_dates=["openingDate", "closingDate", "created_on", "updated_on"],
     )
+
+    # rename and drop some columns to comply with schema
+    cols_rename = {
+        "jrcRegistrationIdType": "companyRegistrationNumberType",
+    }
+    cols_drop = [
+        "jrcLEI",
+        "jrcRegistrationIDStandardized",
+        "jrcOrbisName",
+        "jrcOrbisPostalCode",
+        "jrcOrbisCity",
+        "accountIdentifierDB",
+    ]
+    df_acc = df_acc.rename(columns=cols_rename).drop(cols_drop, axis=1)
+    # account id has already been modified to be unique and existing for
+    # all accounts in the csv table export step
     df_acc["id"] = df_acc["accountIDEutl"]
-    # bug fix: accountIDtransactions should by unique but is not for those accounts created
-    # for transactions
-    df_acc["accountIDtransactions"] = df_acc["accountIdentifierDB"]
-    df_acc = df_acc.drop("accountIdentifierDB", axis=1)
+
     int_cols = ["id", "accountIDEutl", "accountHolder_id", "yearValid"]
     dal.insert_df_large(df_acc, "account", integerColumns=int_cols, if_exists="append")
 
@@ -252,5 +265,5 @@ def insert_lookup_tables(dal, dir_in):
     dal.insert_df(df, ComplianceCode)
 
     print("---- Insert NaceClassification table")
-    df = pd.read_csv(dir_in + "nace_all.csv")
+    df = pd.read_csv(dir_in + "nace_scheme.csv")
     dal.insert_df(df, NaceCode)
