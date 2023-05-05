@@ -1,7 +1,8 @@
 {
-    "python.formatting.provider": "black",
-    "[python]": {
-        "editor.formatOnPaste": false
-    },
-    "editor.formatOnSave": true,
+  "python.formatting.provider": "black",
+  "[python]": {
+    "editor.formatOnPaste": false
+  },
+  "editor.formatOnSave": true,
+  "cSpell.words": ["NACE"]
 }
