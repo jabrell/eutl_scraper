@@ -58,7 +58,7 @@ def create_csv_tables(
     :param fn_nace: <string> name of file with nace codes for installations
                 if None, NACE codes are not processed
     :param fn_nace_codes: <string> name of file with nace classification scheme
-                If None, calssification lookup not exported
+                If None, classification lookup not exported
     """
     print("####### Create lookup tables")
     create_tables_lookup(dir_in, dir_out, fn_nace_codes=fn_nace_codes)
@@ -865,7 +865,7 @@ def create_tables_lookup(dir_in, dir_out, fn_nace_codes=None):
     :param dir_data: <string> directory with parsed data
     :param dir_out: <string> output directory
     :param fn_nace_codes: <string> name of file with nace classification scheme
-                If None, calssification lookup not exported"""
+                If None, classification lookup not exported"""
     export_mappings(dir_in)
     for fn in glob.iglob(dir_in + "*Codes.csv"):
         fn_out = dir_out + "/" + os.path.basename(fn)

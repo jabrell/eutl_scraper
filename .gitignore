@@ -5,6 +5,7 @@ __pycache__/
 test.*
 _jab*
 *jab_*
+set_env.bat
 
 # C extensions
 *.so

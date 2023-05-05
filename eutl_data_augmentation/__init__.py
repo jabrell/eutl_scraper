@@ -1,0 +1,1 @@
+from .get_coordinates import get_installation_coordinates_google
