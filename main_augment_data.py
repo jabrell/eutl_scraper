@@ -15,10 +15,12 @@ def ingest_data(dir_parsed, dir_additional):
     # add coordinates to installations
     fn_coordinates = dir_additional + "/installation_coordinates.csv"
     key_google = os.environ.get("GMAPKEY")
-    print(key_google)
-    get_installation_coordinates_google(
-        dir_parsed, key_google, fn_out=fn_coordinates, ignore_existing=False
-    )
+    if key_google:
+        get_installation_coordinates_google(
+            dir_parsed, key_google, fn_out=fn_coordinates, ignore_existing=False
+        )
+    else:
+        print("---- No google api key provided")
 
     # extract nace classification
     fn_nace_scheme = dir_additional + "nace_scheme.csv"
