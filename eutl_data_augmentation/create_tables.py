@@ -369,6 +369,9 @@ def create_table_installation(dir_in, dir_out, fn_coordinates=None, fn_nace=None
     df_enti = df_enti[["installationID", "euEntitlement", "chEntitlement"]].copy()
     df_inst = df_inst.merge(df_enti, on="installationID", how="left")
 
+    # add the trading system information
+    df_inst["tradingSystem"] = "euets"
+
     # transform dataframe to be consistent with Installation object
     cols_inst = {
         "installationID": "id",

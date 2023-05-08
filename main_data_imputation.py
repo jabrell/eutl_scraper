@@ -58,14 +58,7 @@ if __name__ == "__main__":
     dir_additional = "./data/additional/"
 
     # get additional data and impute them into existing tables
-    # file_names = ingest_data(dir_parsed, dir_additional)
-    # TODO delete only here for testing
-    file_names = {
-        "accounts_w_orbis": dir_parsed + "accounts_w_orbis.csv",
-        "nace_installations": dir_additional + "nace_leakage.csv",
-        "nace_scheme": dir_additional + "nace_scheme.csv",
-        "location_installations": dir_additional + "/installation_coordinates.csv",
-    }
+    file_names = ingest_data(dir_parsed, dir_additional)
 
     # create cleaned and augmented csv tables
     create_csv_tables(

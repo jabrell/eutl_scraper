@@ -148,6 +148,7 @@ class Installation(Base):
 
     id = Column(String(20), primary_key=True)
     name = Column(String(250))
+    tradingSystem = Column(String(20))
     registry_id = Column(String(2), ForeignKey("country_code.id"), index=True)
     activity_id = Column(
         Integer(), ForeignKey("activity_type_code.id"), nullable=False, index=True
