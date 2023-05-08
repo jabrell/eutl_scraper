@@ -376,6 +376,7 @@ def create_table_installation(dir_in, dir_out, fn_coordinates=None, fn_nace=None
     cols_inst = {
         "installationID": "id",
         "name": "name",
+        "tradingSystem": "tradingSystem",
         "registryCode": "registry_id",
         "activity": "activity_id",
         "eprtrID": "eprtrID",
