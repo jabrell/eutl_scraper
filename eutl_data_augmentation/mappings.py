@@ -89,6 +89,8 @@ map_account_type = {
     "242-0": "Non Submission Of Verification Report Cancellation Account",
     "100-22": "International Credit Account",
     "100-23": "Credit Exchange Account",
+    # ESD accounts
+    "esd": "EU Effort Sharing Account",
 }
 
 map_account_type_inv = {v: k for k, v in map_account_type.items()}

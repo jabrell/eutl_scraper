@@ -87,7 +87,7 @@ def extract_nace_scheme(fn_in, fn_out):
     df_ = pd.DataFrame(new_rows)
 
     # save to disk
-    df_out = df_all.append(df_)
+    df_out = pd.concat([df_all, df_])
     df_out.to_csv(fn_out, index=False)
     df_out.id.is_unique
 

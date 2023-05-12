@@ -95,8 +95,6 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     fn_compliance = dir_in + "esdCompliance.csv"
     df_t = pd.read_csv(fn_trans, parse_dates=["transactionDate"])
     df_tb = pd.read_csv(fn_trans_blocks, parse_dates=["transactionDate"])
-    # TODO for unclear reasons we currently have duplicated transaction data
-    # TODO check in spider
     df_c = pd.read_csv(fn_compliance)
     df_acc_euets = pd.read_csv(dir_out + "accounts.csv", low_memory=False)
     df_acc_holder_euets = pd.read_csv(dir_out + "accountHolders.csv")
@@ -113,7 +111,12 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     map_unitType.update({"Annual Emission Allocation Unit": "AEA"})
     # -----------------------------------------------------------
     #             create account table
-    # get accounts from compliance table
+    # the ESD does not directly report accounts. In fact, each member state has
+    # one account for each year of compliance. In addition, there are account to
+    # manage the ESD.
+    # To stay consistent with the general data model, we create ESD accounts
+    # based on (a) ESD compliance tables and (b) ESD transactions
+    # (a) get accounts from compliance table
     df_acc = df_c[
         ["accountIdentifier", "accountStatus", "memberState"]
     ].drop_duplicates()
@@ -121,7 +124,7 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     df_acc["tradingSystem"] = df_[0]
     df_acc["yearValid"] = df_[2].astype("int")
 
-    # get additional accounts from transaction table
+    # (b) accounts from transaction table
     accs = df_acc.accountIdentifier.unique()
     df_t_acc = pd.concat(
         [
@@ -172,7 +175,7 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     )
 
     # -----------------------------------------------------------
-    #             create account table
+    #             create account holder table
     # for accounts with member state, use the member state
     # else use the account name as account holder name
     df_acc_holder = df_acc[df_acc.memberState.notnull()][
@@ -213,6 +216,11 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     df_acc["tradingSystem"] = "esd"
     df_acc_holder["tradingSystem"] = "esd"
 
+    # we do not have an account name in the ESD, thus we create one equal to the
+    # account identifier also add an account type
+    df_acc["name"] = df_acc.accountIDESD
+    df_acc["accountType_id"] = "esd"
+
     # -----------------------------------------------------------
     #             compliance data
     df_c["surrendered"] = df_c.surrenderedAea + df_c.surrenderedCredits
@@ -231,6 +239,17 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
             "memberState": "memberstate_id",
         }
     )
+
+    # TODO Add ESD to standard data model, i.e., create fake installation?
+    # # create some fake installations that represent countries under the ESD. We
+    # # used f"{country_id}_ESD" as installation id and add this id to the
+    # # compliance table as well
+    # df_comp["installation_id"] = df_comp.memberstate_id.map(lambda x: f"{x}_esd")
+    # df_inst = pd.DataFrame({"id": df_comp["installation_id"].unique()})
+    # df_inst["registry_id"] = df_comp.memberstate_id
+    # df_inst["activity_id"] = "esd"
+
+    # # TODO new ESD lables also to mappings
 
     # -----------------------------------------------------------
     #             transaction data
@@ -329,6 +348,7 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     df_trans["tradingSystem"] = "esd"
     df_trans["id"] = list(max_trans_id + i for i in range(1, len(df_trans) + 1))
     df_trans["unitType_id"] = df_trans.unitType_id.map(lambda x: map_unitType.get(x))
+
     # -----------------------------------------------------------
     #             save outputs
     # append tables to existing once and save
