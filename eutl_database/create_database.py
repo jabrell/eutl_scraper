@@ -26,9 +26,9 @@ def export_database(dal, dir_out):
     get_query_df(session.query(Compliance)).to_csv(
         dir_out + "compliance.csv", index=False
     )
-    get_query_df(session.query(EsdCompliance)).to_csv(
-        dir_out + "esd_compliance.csv", index=False
-    )
+    # get_query_df(session.query(EsdCompliance)).to_csv(
+    #     dir_out + "esd_compliance.csv", index=False
+    # )
     get_query_df(session.query(Surrender)).to_csv(
         dir_out + "surrender.csv", index=False
     )
@@ -51,6 +51,9 @@ def export_database(dal, dir_out):
     get_query_df(session.query(CountryCode)).to_csv(
         dir_out + "country_code.csv", index=False
     )
+    get_query_df(session.query(TradingSystemCode)).to_csv(
+        dir_out + "trading_system_code.csv", index=False
+    )
     get_query_df(session.query(ComplianceCode)).to_csv(
         dir_out + "compliance_code.csv", index=False
     )
@@ -66,6 +69,9 @@ def export_database(dal, dir_out):
             "acquiringAccount_id",
             "unitType_id",
             "project_id",
+            "tradingSystem_id",
+            "acquiringYear",
+            "transferringYear",
         ],
         as_index=False,
         dropna=False,
@@ -80,7 +86,6 @@ def create_database(dal, dir_in):
     insert_lookup_tables(dal, dir_in)
     insert_installation_tables(dal, dir_in)
     insert_account_tables(dal, dir_in)
-    insert_esd_compliance_table(dal, dir_in)
     insert_transaction_table(dal, dir_in)
 
 
@@ -95,6 +100,7 @@ def insert_transaction_table(dal, dir_in):
         low_memory=False,
         parse_dates=["date", "created_on", "updated_on"],
     )
+    df_trans = df_trans.rename(columns={"tradingSystem": "tradingSystem_id"})
     int_cols = [
         "id",
         "transactionTypeSupplementary_id",
@@ -121,6 +127,8 @@ def insert_account_tables(dal, dir_in):
     df_accHold = pd.read_csv(
         dir_in + "accountHolders.csv", parse_dates=["updated_on", "created_on"]
     )
+    df_accHold["tradingSystem_id"] = df_accHold["tradingSystem"]
+    df_accHold = df_accHold.drop(["tradingSystem"], axis=1)
     dal.insert_df_large(df_accHold, "account_holder", if_exists="append")
 
     print("---- Insert Account table")
@@ -133,6 +141,7 @@ def insert_account_tables(dal, dir_in):
     # rename and drop some columns to comply with schema
     cols_rename = {
         "jrcRegistrationIdType": "companyRegistrationNumberType",
+        "tradingSystem": "tradingSystem_id",
     }
     cols_drop = [
         "jrcLEI",
@@ -149,29 +158,6 @@ def insert_account_tables(dal, dir_in):
 
     int_cols = ["id", "accountIDEutl", "accountHolder_id", "yearValid"]
     dal.insert_df_large(df_acc, "account", integerColumns=int_cols, if_exists="append")
-
-
-def insert_esd_compliance_table(dal, dir_in):
-    """Insert compliance table for esd accounts
-    :param dal: <DataAccessLayer>
-    :param dir_in: <string> path to final data directory
-    """
-    print("---- Insert ESD Compliance table")
-    int_cols = [
-        "year",
-        "balance",
-        "allocated",
-        "verified",
-        "surrendered",
-        "surrenderedAea",
-        "surrenderedCredits",
-        "penalty",
-    ]
-    df = pd.read_csv(dir_in + "esd_compliance.csv")
-    dal.insert_df_large(
-        df, "esd_compliance", integerColumns=int_cols, if_exists="append"
-    )
-    pass
 
 
 def insert_installation_tables(dal, dir_in):
@@ -193,11 +179,13 @@ def insert_installation_tables(dal, dir_in):
         low_memory=False,
         dtype={"nace15_id": "str", "nace20_id": "str", "nace_id": "str"},
     )
+    df_inst = df_inst.rename(columns={"tradingSystem": "tradingSystem_id"})
     # we might have duplicates here, Drop complete duplicates and report duplicates
     dupi = df_inst.duplicated().astype("int").sum()
     if dupi > 0:
         print("Drop %d duplicated installation rows" % dupi)
         df_inst = df_inst.drop_duplicates()
+
     dal.insert_df_large(
         df_inst,
         "installation",
@@ -206,7 +194,9 @@ def insert_installation_tables(dal, dir_in):
     )
 
     print("---- Insert Compliance table")
-    df_comp = pd.read_csv(dir_in + "compliance.csv")
+    df_comp = pd.read_csv(dir_in + "compliance.csv", low_memory=False)
+    df_comp["reportedInSystem_id"] = df_comp.reportedInSystem.str.lower()
+    df_comp = df_comp.drop("reportedInSystem", axis=1)
     int_cols = [
         "allocatedFree",
         "allocatedNewEntrance",
@@ -217,6 +207,8 @@ def insert_installation_tables(dal, dir_in):
         "verifiedUpdated",
         "surrendered",
         "surrenderedCummulative",
+        "balance",
+        "penalty",
     ]
     dal.insert_df_large(
         df_comp, "compliance", integerColumns=int_cols, if_exists="append"
@@ -224,7 +216,12 @@ def insert_installation_tables(dal, dir_in):
 
     print("---- Insert Surrender table")
     df_surr = pd.read_csv(dir_in + "surrender.csv")
+    df_surr["reportedInSystem_id"] = df_surr.reportedInSystem.str.lower()
+    df_surr = df_surr.drop(["reportedInSystem", "id"], axis=1)
+    # create a unique id
+    df_surr["id"] = df_surr.index
     int_cols = ["id", "amount", "project_id"]
+
     dal.insert_df_large(
         df_surr, "surrender", integerColumns=int_cols, if_exists="append"
     )
@@ -267,3 +264,7 @@ def insert_lookup_tables(dal, dir_in):
     print("---- Insert NaceClassification table")
     df = pd.read_csv(dir_in + "nace_scheme.csv")
     dal.insert_df(df, NaceCode)
+
+    print("---- Insert TransactionTypeMain table")
+    df = pd.read_csv(dir_in + "tradingSystemCodes.csv")
+    dal.insert_df(df, TradingSystemCode)

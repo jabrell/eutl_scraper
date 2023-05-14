@@ -24,7 +24,7 @@ class Transaction(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     transactionID = Column(String(100))
     transactionBlock = Column(Integer())
-    tradingSystem = Column(String(20))
+    tradingSystem_id = Column(String(20), ForeignKey("trading_system_code.id"))
     date = Column(DateTime)
     acquiringYear = Column(Integer())
     transferringYear = Column(Integer())
@@ -78,7 +78,7 @@ class Account(Base):
     __tablename__ = "account"
 
     id = Column(Integer(), primary_key=True)
-    tradingSystem = Column(String(20))
+    tradingSystem_id = Column(String(20), ForeignKey("trading_system_code.id"))
     accountIDEutl = Column(Integer())
     accountIDTransactions = Column(String(50))
     accountIDESD = Column(String(50))
@@ -120,7 +120,7 @@ class Account(Base):
 class AccountHolder(Base):
     __tablename__ = "account_holder"
     id = Column(Integer(), primary_key=True)
-    tradingSystem = Column(String(20))
+    tradingSystem_id = Column(String(20), ForeignKey("trading_system_code.id"))
     name = Column(String(300))
     addressMain = Column(String(300))
     addressSecondary = Column(String(300))
@@ -148,7 +148,7 @@ class Installation(Base):
 
     id = Column(String(20), primary_key=True)
     name = Column(String(250))
-    tradingSystem = Column(String(20))
+    tradingSystem_id = Column(String(20), ForeignKey("trading_system_code.id"))
     registry_id = Column(String(2), ForeignKey("country_code.id"), index=True)
     activity_id = Column(
         Integer(), ForeignKey("activity_type_code.id"), nullable=False, index=True
@@ -219,7 +219,9 @@ class Compliance(Base):
         String(100), ForeignKey("installation.id"), primary_key=True
     )
     year = Column(Integer(), primary_key=True)
-    reportedInSystem = Column(String(10), primary_key=True)
+    reportedInSystem_id = Column(
+        String(20), ForeignKey("trading_system_code.id"), primary_key=True
+    )
     euetsPhase = Column(String(100))
     compliance_id = Column(String(100), ForeignKey("compliance_code.id"))
     allocatedFree = Column(Integer())
@@ -231,6 +233,8 @@ class Compliance(Base):
     verifiedUpdated = Column(Boolean())
     surrendered = Column(Integer())
     surrenderedCummulative = Column(Integer())
+    balance = Column(Integer())
+    penalty = Column(Integer())
     created_on = Column(DateTime(), default=datetime.now)
     updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
 
@@ -248,32 +252,13 @@ class Compliance(Base):
         )
 
 
-class EsdCompliance(Base):
-    """compliance data for effor sharing"""
-
-    __tablename__ = "esd_compliance"
-    account_id = Column(Integer(), ForeignKey("account.id"), primary_key=True)
-    year = Column(Integer(), primary_key=True)
-    memberstate_id = Column(String(10), ForeignKey("country_code.id"))
-    balance = Column(Integer())
-    penalty = Column(Integer())
-    allocated = Column(Integer())
-    verified = Column(Integer())
-    surrendered = Column(Integer())
-    surrenderedAea = Column(Integer())
-    surrenderedCredits = Column(Integer())
-    compliance_id = Column(String(100), ForeignKey("compliance_code.id"))
-    created_on = Column(DateTime(), default=datetime.now)
-    updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
-
-
 class Surrender(Base):
     """surrendering details"""
 
     __tablename__ = "surrender"
     id = Column(Integer, primary_key=True)
     installation_id = Column(String(100), ForeignKey("installation.id"))
-    reportedInSystem = Column(String(10), primary_key=True)
+    reportedInSystem_id = Column(String(20), ForeignKey("trading_system_code.id"))
     year = Column(Integer())
     unitType_id = Column(String(25), ForeignKey("unit_type_code.id"))
     amount = Column(Integer())
@@ -412,3 +397,9 @@ class NaceCode(Base):
 
     def __repr__(self):
         return "<NaceCode(%r, %r)>" % (self.id, self.description)
+
+
+class TradingSystemCode(Base):
+    __tablename__ = "trading_system_code"
+    id = Column(String(20), primary_key=True)
+    description = Column(String(250))

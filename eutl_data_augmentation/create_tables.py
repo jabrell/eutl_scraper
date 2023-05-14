@@ -5,6 +5,7 @@ from .mappings import (
     map_registryCode_inv,
     map_account_type_inv,
     map_unitType_inv,
+    map_registryCodes,
     export_mappings,
 )
 import os
@@ -93,6 +94,7 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     fn_trans = dir_in + "esdTransactions.csv"
     fn_trans_blocks = dir_in + "esdTransactionBlocks.csv"
     fn_compliance = dir_in + "esdCompliance.csv"
+
     df_t = pd.read_csv(fn_trans, parse_dates=["transactionDate"])
     df_tb = pd.read_csv(fn_trans_blocks, parse_dates=["transactionDate"])
     df_c = pd.read_csv(fn_compliance)
@@ -100,6 +102,12 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     df_acc_holder_euets = pd.read_csv(dir_out + "accountHolders.csv")
     df_projects_euets = pd.read_csv(dir_out + "offset_projects.csv")
     df_trans_euets = pd.read_csv(dir_out + "transactionBlocks.csv")
+    df_comp_euets = pd.read_csv(dir_out + "compliance.csv", low_memory=False)
+    df_surr_euets = pd.read_csv(dir_out + "surrender.csv")
+    df_inst_euets = pd.read_csv(dir_out + "installations.csv", dtype={"nace_id": "str"})
+
+    # determine maximum account ids etc for id management
+    # TODO move that to database creation and let postgres figure out ids?
     max_holder_id = df_acc_holder_euets["id"].max()
     max_acc_id = df_acc_euets["accountIDEutl"].max()
     max_trans_id = df_trans_euets["id"].max()
@@ -125,11 +133,11 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     df_acc["yearValid"] = df_[2].astype("int")
 
     # (b) accounts from transaction table
-    accs = df_acc.accountIdentifier.unique()
+    accs = list(df_acc.accountIdentifier.unique())
     df_t_acc = pd.concat(
         [
             (
-                df_t.query("transferringAccountIdentifier not in @accs")[
+                df_t.query(f"transferringAccountIdentifier not in {accs}")[
                     ["transferringAccountIdentifier", "transferringMemberState"]
                 ].rename(
                     columns={
@@ -139,7 +147,7 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
                 )
             ),
             (
-                df_t.query("acquiringAccountIdentifier not in @accs")[
+                df_t.query(f"acquiringAccountIdentifier not in {accs}")[
                     ["acquiringAccountIdentifier", "acquiringMemberState"]
                 ].rename(
                     columns={
@@ -169,6 +177,7 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
         .to_dict()
     )
     df_t_acc = df_t_acc[~df_t_acc.accountIdentifier.isin(search_in_euets)]
+    df_t_acc.memberState = "EU"
 
     df_acc = pd.concat([df_acc, df_t_acc]).rename(
         columns={"accountIdentifier": "accountID"}
@@ -215,7 +224,9 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     df_acc.loc[mask, "registry_id"] = "ESD"
     df_acc["tradingSystem"] = "esd"
     df_acc_holder["tradingSystem"] = "esd"
-
+    df_acc_holder["name"] = "Effort Sharing: " + df_acc_holder["name"].map(
+        map_registryCodes
+    )
     # we do not have an account name in the ESD, thus we create one equal to the
     # account identifier also add an account type
     df_acc["name"] = df_acc.accountIDESD
@@ -230,27 +241,52 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
         right_on="accountIDESD",
         how="left",
     )
-    df_comp = df_c.drop(
-        ["accountIdentifier", "accountStatus", "accountIDESD"], axis=1
-    ).rename(
+    df_comp = df_c.rename(
         columns={
             "accountIDEutl": "account_id",
             "compliance": "compliance_id",
-            "memberState": "memberstate_id",
+            "memberState": "registry_id",
+            "allocated": "allocatedTotal",
         }
     )
+    df_comp["surrendered"] = df_comp.surrenderedAea + df_comp.surrenderedCredits
 
-    # TODO Add ESD to standard data model, i.e., create fake installation?
-    # # create some fake installations that represent countries under the ESD. We
-    # # used f"{country_id}_ESD" as installation id and add this id to the
-    # # compliance table as well
-    # df_comp["installation_id"] = df_comp.memberstate_id.map(lambda x: f"{x}_esd")
-    # df_inst = pd.DataFrame({"id": df_comp["installation_id"].unique()})
-    # df_inst["registry_id"] = df_comp.memberstate_id
-    # df_inst["activity_id"] = "esd"
-
-    # # TODO new ESD lables also to mappings
-
+    # FIT ESD into standard data model creating installations for each country
+    #  - create some installations that represent countries under the ESD. We
+    #     used f"{country_id}_ESD" as installation id
+    #  - add this id to thecompliance table
+    #  - establish the link between accounts and installations
+    #  - create table with surrendering details
+    df_comp["installation_id"] = df_comp.registry_id.map(lambda x: f"{x}_esd")
+    df_inst = pd.DataFrame({"id": df_comp["installation_id"].unique()})
+    df_inst[["registry_id", "tradingSystem"]] = df_inst.id.str.split("_", expand=True)
+    df_inst["activity_id"] = 1000
+    df_inst["name"] = "Effort Sharing Account: " + df_inst.id
+    df_acc["installation_id"] = df_acc.registry_id.map(
+        df_inst.set_index("registry_id")["id"].to_dict()
+    )
+    df_surr = pd.concat(
+        [
+            df_comp[["installation_id", "year", "surrenderedAea"]]
+            .assign(unitType_id="AEA")
+            .rename(columns={"surrenderedAea": "amount"}),
+            df_comp[["installation_id", "year", "surrenderedCredits"]]
+            .assign(unitType_id="credit")
+            .rename(columns={"surrenderedCredits": "amount"}),
+        ]
+    ).assign(reportedInSystem="esd")
+    df_comp = df_comp.drop(
+        [
+            "accountIdentifier",
+            "accountStatus",
+            "account_id",
+            "accountIDESD",
+            "surrenderedAea",
+            "surrenderedCredits",
+            "registry_id",
+        ],
+        axis=1,
+    ).assign(reportedInSystem="esd")
     # -----------------------------------------------------------
     #             transaction data
     # check if transaction table has additional projects not already represented
@@ -355,12 +391,17 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     df_acc = pd.concat([df_acc_euets, df_acc])
     df_acc_holder = pd.concat([df_acc_holder_euets, df_acc_holder])
     df_trans = pd.concat([df_trans_euets, df_trans])
+    df_comp = pd.concat([df_comp_euets, df_comp])
+    df_surr = pd.concat([df_surr_euets, df_surr])
+    df_inst = pd.concat([df_inst_euets, df_inst])
     if save_data:
         df_acc.to_csv(dir_out + "accounts.csv", index=False)
         df_acc_holder.to_csv(dir_out + "accountHolders.csv", index=False)
-        df_comp.to_csv(dir_out + "esd_compliance.csv", index=False)
+        df_comp.to_csv(dir_out + "compliance.csv", index=False)
+        df_surr.to_csv(dir_out + "surrender.csv", index=False)
         df_projects_euets.to_csv(dir_out + "offset_projects.csv", index=False)
         df_trans.to_csv(dir_out + "transactionBlocks.csv", index=False)
+        df_inst.to_csv(dir_out + "installations.csv", index=False)
     return
 
 
@@ -459,6 +500,12 @@ def create_table_installation(dir_in, dir_out, fn_coordinates=None, fn_nace=None
     df_inst_to_tbl["created_on"] = datetime.now()
     df_inst_to_tbl["updated_on"] = datetime.now()
 
+    # if installation does not provide a name, create one
+    # since these are mostly aircraft operators we use the ec748 code and fall
+    # back to the installation id
+    df_inst_to_tbl.name = df_inst_to_tbl.name.fillna(
+        df_inst_to_tbl.ec748_2009Code
+    ).fillna(df_inst_to_tbl.id)
     # export to csv
     df_inst_to_tbl.to_csv(dir_out + "installations.csv", index=False, encoding="utf-8")
 
@@ -536,6 +583,9 @@ def create_table_surrender(dir_in, dir_out):
     df_proj["created_on"] = datetime.now()
     df_proj["updated_on"] = datetime.now()
 
+    # ensure consistency of reportedInSystem with lookup tables
+    df_surr.reportedInSystem = df_surr.reportedInSystem.str.lower()
+
     # choose and rename columns in the surrendering table an insert them into the database
     cols_surr = {
         "installationID": "installation_id",
@@ -548,6 +598,7 @@ def create_table_surrender(dir_in, dir_out):
         # 'expiryDate': 'expiryDate',
         "reportedInSystem": "reportedInSystem",
     }
+
     df_surr_to_tbl = df_surr[cols_surr.keys()].copy()
     df_surr_to_tbl = df_surr_to_tbl.rename(columns=cols_surr)
     # impose lookup codes

@@ -13,6 +13,7 @@ def export_mappings(dir_out):
         "complianceCodes.csv": map_complianceCode,
         "mainTransactionTypeCodes.csv": map_trans_type,
         "supplementaryTransactionTypeCodes.csv": map_trans_supp_type,
+        "tradingSystemCodes.csv": map_tradingSystem,
     }
     for fn, data in maps.items():
         pd.DataFrame(data.items(), columns=["code", "description"]).to_csv(
@@ -34,6 +35,7 @@ map_unitType_inv = {
     "tCER - Temporary CER": "tCER",
     "AAU - Assigned Amount Unit": "AAU",
     "AEA - Annual Emissions Allocations": "AEA",
+    "International Credit": "credit",
 }
 
 map_unitType = {v: k for k, v in map_unitType_inv.items()}
@@ -351,6 +353,7 @@ map_registryCodes = {
     "XI": "Northern Ireland",
     "ESD": "Effort Sharing Management",
 }
+
 map_registryCode_inv = {v: k for k, v in map_registryCodes.items()}
 
 
@@ -394,8 +397,12 @@ map_activity = {
     9: "Industrial plants for the production of (a) pulp from timber or other fibrous materials (b) paper and board",
     10: "Aircraft operator activities",
     99: "Other activity opted-in pursuant to Article 24 of Directive 2003/87/EC",
+    # esd activities
+    1000: "EU Effort Sharing",
 }
+
 map_activity_data_to_code = {"%d-%s" % (k, v): k for k, v in map_activity.items()}
+
 map_activity_data_to_name = {"%d-%s" % (k, v): v for k, v in map_activity.items()}
 
 
@@ -494,4 +501,10 @@ map_trans_supp_type = {
     92: "Reversal of Allowance Surrender",
     93: "Correction",
     94: "Reversal of Allowance Cancellation",
+}
+
+map_tradingSystem = {
+    "euets": "EU Emissions Trading System",
+    "esd": "EU Effort Sharing Decision",
+    "chets": "Swiss Emissions Trading System",
 }
