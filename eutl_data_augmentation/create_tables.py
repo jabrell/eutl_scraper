@@ -254,14 +254,16 @@ def create_esd_tables(dir_in, dir_out, save_data=True):
     # FIT ESD into standard data model creating installations for each country
     #  - create some installations that represent countries under the ESD. We
     #     used f"{country_id}_ESD" as installation id
-    #  - add this id to thecompliance table
+    #  - add this id to the compliance table
     #  - establish the link between accounts and installations
     #  - create table with surrendering details
     df_comp["installation_id"] = df_comp.registry_id.map(lambda x: f"{x}_esd")
     df_inst = pd.DataFrame({"id": df_comp["installation_id"].unique()})
     df_inst[["registry_id", "tradingSystem"]] = df_inst.id.str.split("_", expand=True)
     df_inst["activity_id"] = 1000
-    df_inst["name"] = "Effort Sharing Account: " + df_inst.id
+    df_inst["name"] = "Effort Sharing Installation: " + df_inst.registry_id.map(
+        map_registryCodes
+    )
     df_acc["installation_id"] = df_acc.registry_id.map(
         df_inst.set_index("registry_id")["id"].to_dict()
     )
