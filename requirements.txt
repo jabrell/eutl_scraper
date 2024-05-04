@@ -27,7 +27,7 @@ Scrapy==2.5.1
 service-identity==21.1.0
 six==1.16.0
 Twisted==21.7.0
-twisted-iocpsupport==1.0.2
+# twisted-iocpsupport==1.0.2
 typing-extensions==3.10.0.2
 w3lib==1.22.0
 wheel==0.37.1
