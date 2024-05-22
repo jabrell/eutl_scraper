@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 
+from .mappings import map_registryCode_inv
 
-def impute_orbis_identifiers(fn_jrc, fn_acc, fn_out):
+def impute_orbis_identifiers(fn_jrc, fn_acc, fn_contacts, fn_out):
     """Impute ORBIS identifiers from JRC matching into account table
     :param fn_jrc: <str> path to excel file with JRC Orbis matching
     :param fn_acc: <str> path to account file as downloaded by scrapy
@@ -10,8 +11,27 @@ def impute_orbis_identifiers(fn_jrc, fn_acc, fn_out):
     :return: <pd.DataFrame> with account data including orbis id
     """
     # get the data
-    df_jrc = pd.read_excel(fn_jrc, sheet_name="JRC-EU ETS-FIRMS")
-    df_acc = pd.read_csv(fn_acc)
+    df_jrc = pd.read_excel(
+        fn_jrc,
+        sheet_name="JRC-EU ETS-FIRMS",
+        dtype={"EUTL_REGID": str}
+        )
+    df_acc = pd.read_csv(
+        fn_acc,
+        dtype={"companyRegistrationNumber": str}
+        )
+    df_contacts = pd.read_csv(
+        fn_contacts,
+        usecols=["accountID", "country"],
+        )
+    df_contacts["countryCode"] = df_contacts.country.map(map_registryCode_inv)
+    df_acc = df_acc.merge(
+            df_contacts[["accountID", "countryCode"]],
+            on="accountID",
+            how='left',
+            validate='one_to_one'
+        )
+    
 
     # intial overview
     accRegNum = df_acc.companyRegistrationNumber.astype("str").unique()
@@ -28,13 +48,23 @@ def impute_orbis_identifiers(fn_jrc, fn_acc, fn_out):
     # also drop duplicates by prioritizing matches that are valid by location
     # and afterwards choose those with higher name matching score
     df_jrc_ = df_jrc.sort_values(
-        ["EUTL_REGID", "JRC_IS_VALID_BY_LOCATION", "JRC_NAME_SIMILARITY_RATIO"],
-        ascending=[True, False, False],
+        [
+            "EUTL_AH_COUNTRY",
+            "EUTL_REGID",
+            "JRC_IS_VALID_BY_LOCATION",
+            "JRC_NAME_SIMILARITY_RATIO"
+        ],
+        ascending=[True, True, False, False],
     )
-    df_jrc_ = df_jrc_.drop_duplicates(subset="EUTL_REGID", keep="first")
+    df_jrc_.drop_duplicates(
+        subset=["EUTL_AH_COUNTRY", "EUTL_REGID"],
+        keep="first",
+        inplace=True
+        )
 
     # rename columns in the JRC dataframe
     col_rename = {
+        "EUTL_AH_COUNTRY_ID": "countryCode",
         "EUTL_AH_NAME": "jrcAccountHolderName",
         "EUTL_REGID": "companyRegistrationNumber",
         "JRC_EUTL_LEI_STD": "jrcLEI",
@@ -50,7 +80,12 @@ def impute_orbis_identifiers(fn_jrc, fn_acc, fn_out):
     df_acc.companyRegistrationNumber = df_acc.companyRegistrationNumber.astype(str)
 
     # merge the frames
-    df_merged = df_acc.merge(df_jrc_, on="companyRegistrationNumber", how="left")
+    df_merged = df_acc.merge(
+        df_jrc_,
+        on=("countryCode", "companyRegistrationNumber"),
+        how="left",
+        validate='many_to_one',  # a single company can have multiple accounts
+        )
 
     # check that we do not lost any EUTL accounts or created duplicates
     assert len(df_merged) == len(
