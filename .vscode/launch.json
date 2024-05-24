@@ -5,22 +5,29 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: Current File",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${file}",
+      "console": "integratedTerminal"
+    },
+    {
       "name": "test_data_imputation",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/_jab_main_data_imputation.py",
       "console": "integratedTerminal"
     },
     {
       "name": "data_imputation",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/main_data_imputation.py",
       "console": "integratedTerminal"
     },
     {
       "name": "database_creation",
-      "type": "python",
+      "type": "debugpy",
       "request": "launch",
       "program": "${workspaceFolder}/main_create_database.py",
       "console": "integratedTerminal"

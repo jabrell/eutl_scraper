@@ -18,7 +18,7 @@ class DataAccessLayer:
         db,
         passw,
         echo=False,
-        encoding="utf-8",
+        encoding="utf-8mb4",
         connect=True,
         base=None,
     ):
@@ -43,9 +43,14 @@ class DataAccessLayer:
             self.Base = Base
         else:
             self.Base = base
-
-        self.conn_string = "postgresql+psycopg2://%s:%s@%s/%s" % (user, passw, host, db)
         self.encoding = encoding
+        self.conn_string = "postgresql+psycopg2://%s:%s@%s/%s" % (
+            user,
+            passw,
+            host,
+            db,
+        )
+
         self.echo = echo
         if connect:
             self.connect()
@@ -54,20 +59,24 @@ class DataAccessLayer:
         """Connects to database"""
         if self.engine is None:
             self.engine = create_engine(
-                self.conn_string, echo=self.echo, encoding=self.encoding
+                self.conn_string,
+                echo=self.echo,  # encoding=self.encoding
+                # client_encoding=self.encoding,
             )
             self.Base.metadata.create_all(self.engine)
-            self.metadata = self.metadata = MetaData(bind=self.engine)
-            self.metadata.reflect()
+            self.metadata = self.metadata = MetaData()  #
+            self.metadata.reflect(bind=self.engine)
             self.Session = sessionmaker(bind=self.engine)
             self.session = self.Session()
 
     def clear_database(self, askConfirmation=True):
         """Deletes all tables from database connected by engine
         askConfirmation: <boolean> true to ask for typed confirmation"""
-        self.metadata = MetaData(bind=self.engine)
-        self.metadata.reflect()
-        if len(self.engine.table_names()) > 0:
+        self.metadata = MetaData()
+        self.metadata.reflect(bind=self.engine)
+        inspector = inspect(self.engine)
+        table_names = inspector.get_table_names()
+        if len(table_names) > 0:
             if askConfirmation:
                 confirm = getpass(
                     "Do really want to drop all tables? Enter Yes for confirmation: "
@@ -79,11 +88,11 @@ class DataAccessLayer:
                     if tbl.name in ["spatial_ref_sys"]:
                         continue
                     print(i, tbl)
-                    tbl.drop()
+                    tbl.drop(bind=self.engine)
                 print("Tables deleted")
             else:
                 print("#### Tables still in database ####")
-        self.metadata.reflect()
+        self.metadata.reflect(bind=self.engine)
         self.Base.metadata.create_all(self.engine)
 
     def insert_df(self, df, obj, update=False, bulk_insert=False, verbose=False):
@@ -148,11 +157,11 @@ class DataAccessLayer:
         :parm df: <pd.DataFrame> to be inserted
         :param name: <string> name if table
         :param integerColumns: <list: string> name of columns to be inserted as int
-        :param schema: <string> pecify the schema (if database flavor supports this). If None, use default schema.
-        :param chunksize: <int> number of rows to be inserted at once. In contrast to pandas implementeation
+        :param schema: <string> specify the schema (if database flavor supports this). If None, use default schema.
+        :param chunksize: <int> number of rows to be inserted at once. In contrast to pandas implementation
                     here we use explicit slicing of the dataframe.
         :param if_exists: {"fail", "replace", "append"}, default "fail", How to behave if the table already exists.
-        :param index: <boolean> whetehr to also insert index
+        :param index: <boolean> whether to also insert index
         :param index_label: <string> Column label for index column(s)
         :param dtype: <dict> or <scalar> Specifying the datatype for columns.
                     If a dictionary is used, the keys should be the column names and the values should be the SQLAlchemy types or strings for the sqlite3 legacy mode.

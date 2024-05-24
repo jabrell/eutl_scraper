@@ -239,7 +239,7 @@ def get_surrendering_matches(fo, session):
     # get list of possible matches
     # we use surrendering for the years 2008 and beyond to avoid trial period problems
     lst_res = []
-    for year, v in s_trans.iteritems():
+    for year, v in s_trans.items():
         if year > 2008:
             q = (
                 session.query(Compliance.installation_id)
@@ -257,7 +257,7 @@ def get_surrendering_matches(fo, session):
                 .all()
             )
             lst_res.append([i[0] for i in q])
-    # count list occurance, convert to relative number of matches, and sort by matchig score
+    # count list occurrence, convert to relative number of matches, and sort by matching score
     counted = dict(Counter(x for sublist in lst_res for x in sublist))
     counted = {
         k: v / len(lst_res)
@@ -271,7 +271,7 @@ def get_allocation_matches(fo, session):
     :parm fo: <Account> former operator holding account
     :param session: <sqlalchemy.orm.Session>
     """
-    # get a list transferring transaction classified as surrendering and aggreate by year
+    # get a list transferring transaction classified as surrendering and aggregate by year
     lst_trans = [
         trans
         for trans in fo.acquiringTransactions
@@ -293,7 +293,7 @@ def get_allocation_matches(fo, session):
     # get list of possible matches
     # we use allocating for the years 2008 and beyond to avoid trial period problems
     lst_res = []
-    for year, v in s_trans.iteritems():
+    for year, v in s_trans.items():
         if year > 2007:
             q = (
                 session.query(Compliance.installation_id)
@@ -309,7 +309,7 @@ def get_allocation_matches(fo, session):
                 .all()
             )
             lst_res.append([i[0] for i in q])
-    # count list occurance, convert to relative number of matches, and sort by matchig score
+    # count list occurrence, convert to relative number of matches, and sort by matching score
     counted = dict(Counter(x for sublist in lst_res for x in sublist))
     counted = {
         k: v / len(lst_res)

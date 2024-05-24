@@ -6,6 +6,7 @@ test.*
 _jab*
 *jab_*
 set_env.bat
+data_2023/*
 
 # C extensions
 *.so
