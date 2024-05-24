@@ -484,15 +484,19 @@ def create_table_installation(dir_in, dir_out, fn_coordinates=None, fn_nace=None
 
     # add nace codes
     if fn_nace:
-        # primarily use 2020 leakage list but fill with 15
         df_ = pd.read_csv(
             fn_nace,
-            usecols=["id", "nace15", "nace20"],
-            dtype={"nace15": "str", "nace20": "str"},
+            usecols=["id", "nace15", "nace20", "nace"],
+            dtype={"nace15": "str", "nace20": "str", "nace": "str"},
         ).drop_duplicates()
-        df_["nace_id"] = df_.nace20.fillna(df_.nace15)
-        df_ = df_.rename(columns={"nace15": "nace15_id", "nace20": "nace20_id"})
-        df_inst_to_tbl = df_inst_to_tbl.merge(df_, on="id", how="left")
+        df_.rename(
+            columns={"id": "id_merge", "nace15": "nace15_id", "nace20": "nace20_id", "nace": "nace_id"},
+            inplace=True
+            )
+        # in carbon leakage list installation ids for Northern Ireland (XI) use GB as prefix
+        df_inst_to_tbl['id_merge'] = df_inst_to_tbl.id.str.replace('XI_', 'GB_', regex=False)
+        df_inst_to_tbl = df_inst_to_tbl.merge(df_, on="id_merge", how="left")
+        df_inst_to_tbl.drop('id_merge', axis=1, inplace=True)
         # for aircraft add the nace code 51 (Air transport)
         df_inst_to_tbl.loc[
             df_inst_to_tbl.isAircraftOperator, "nace_id"
