@@ -34,7 +34,7 @@ def ingest_data(dir_parsed, dir_additional):
     fn_leakage_2015 = dir_additional + "leakage_list/leakage_2015.xls"
     fn_leakage_2020 = dir_additional + "leakage_list/leakage_2020.xlsx"
     fn_nace_installations = dir_additional + "nace_leakage.csv"
-    parse_leakage_lists(fn_leakage_2015, fn_leakage_2020, fn_out=fn_nace_installations)
+    parse_leakage_lists(fn_leakage_2015, fn_leakage_2020, fn_out=fn_nace_installations, fn_nace=fn_nace_scheme)
 
     # impute orbis matching from JRC
     fn_jrc = dir_additional + "jrc_orbis_ids/JRC-EU ETS-FIRMS_V2_012022_public.xlsx"

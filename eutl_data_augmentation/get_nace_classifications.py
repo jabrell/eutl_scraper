@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-def parse_leakage_lists(fn_leakage_2015, fn_leakage_2020, fn_out):
+def parse_leakage_lists(fn_leakage_2015, fn_leakage_2020, fn_out, fn_nace):
     """Parse leakage lists
     :param fn_leakage_2015: <str> path to 2015 leakage list
     :param fn_leakage_2020: <str> path to 2020 leakage list
@@ -9,7 +9,7 @@ def parse_leakage_lists(fn_leakage_2015, fn_leakage_2020, fn_out):
     :return: <pd.DataFrame> with nace classification by installation
     """
     # get the two leakage lists and merge them
-    df_l15 = pd.read_excel(fn_leakage_2015, na_values="-")
+    df_l15 = pd.read_excel(fn_leakage_2015, na_values="-", dtype={'NACE Rev2': str})
     df_l15["id"] = (
         df_l15.COUNTRY_CODE + "_" + df_l15.INSTALLATION_IDENTIFIER.astype("str")
     )
@@ -17,7 +17,7 @@ def parse_leakage_lists(fn_leakage_2015, fn_leakage_2020, fn_out):
     df_l15.columns = ["id", "nace15"]
     df_l15 = df_l15[df_l15.nace15.notnull()].copy()
 
-    df_l20 = pd.read_excel(fn_leakage_2020, skiprows=2)
+    df_l20 = pd.read_excel(fn_leakage_2020, skiprows=2, dtype={'NACE Rev2': str})
     df_l20["id"] = (
         df_l20.COUNTRY_CODE + "_" + df_l20.INSTALLATION_IDENTIFIER.astype("str")
     )
@@ -30,20 +30,16 @@ def parse_leakage_lists(fn_leakage_2015, fn_leakage_2020, fn_out):
     # else fallback to 2015
     df_nace = df_l15.merge(df_l20, on="id", how="outer")
     df_nace["nace"] = df_nace.nace20.fillna(df_nace.nace15)
-
-    # Modify codes to have always have two digits before the dot
-    to_adjust = df_nace.nace.map(lambda x: len(str(x).split(".")[0]) < 2)
-    df_nace.loc[to_adjust, "nace"] = df_nace[to_adjust].nace.map(lambda x: "0" + str(x))
-
-    to_adjust = df_nace.nace15.map(lambda x: len(str(x).split(".")[0]) < 2)
-    df_nace.loc[to_adjust, "nace15"] = df_nace[to_adjust].nace15.map(
-        lambda x: "0" + str(x)
-    )
-
-    to_adjust = df_nace.nace20.map(lambda x: len(str(x).split(".")[0]) < 2)
-    df_nace.loc[to_adjust, "nace20"] = df_nace[to_adjust].nace20.map(
-        lambda x: "0" + str(x)
-    )
+    
+    # some codes are formatted as 4-digit but are a lower level NACE code
+    # e.g., 35.00 is 2-digit 35 and 35.10 is 3-digit 35.1
+    df_codes = pd.read_csv(fn_nace, dtype={'id': str})
+    for column in df_nace.columns[df_nace.columns.str.startswith('nace')]:
+        df_nace[column].where(
+            df_nace[column].isin(df_codes.id),
+            df_nace[column].str.rstrip('.0'),
+            inplace=True
+            )
 
     # save data
     df_nace.to_csv(fn_out, index=False)
