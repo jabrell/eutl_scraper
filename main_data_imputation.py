@@ -39,8 +39,9 @@ def ingest_data(dir_parsed, dir_additional):
     # impute orbis matching from JRC
     fn_jrc = dir_additional + "jrc_orbis_ids/JRC-EU ETS-FIRMS_V2_012022_public.xlsx"
     fn_acc = dir_parsed + "accounts.csv"
+    fn_contacts = dir_parsed + "contacts.csv"
     fn_out = dir_parsed + "accounts_w_orbis.csv"
-    impute_orbis_identifiers(fn_jrc, fn_acc, fn_out)
+    impute_orbis_identifiers(fn_jrc, fn_acc, fn_contacts, fn_out)
 
     return {
         "accounts_w_orbis": fn_out,
