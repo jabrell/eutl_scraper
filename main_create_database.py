@@ -15,7 +15,7 @@ if __name__ == "__main__":
 
     # build the database
     localConnectionSettings = dict(
-        user="JanAdmin", host="localhost", db="eutl2024", passw="1234"
+        user="JanAdmin", host="localhost", db="eutl2024_build", passw="1234"
     )
     dal = DataAccessLayer(**localConnectionSettings)
     dal.clear_database(askConfirmation=False)
