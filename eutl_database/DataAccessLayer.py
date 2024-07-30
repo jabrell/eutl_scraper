@@ -1,3 +1,4 @@
+from typing import Any
 from getpass import getpass
 from sqlalchemy.exc import ProgrammingError
 from sqlalchemy.inspection import inspect
@@ -55,6 +56,11 @@ class DataAccessLayer:
         if connect:
             self.connect()
 
+    @property
+    def session(self) -> Any:
+        """Get a database session"""
+        return self.Session()
+
     def connect(self):
         """Connects to database"""
         if self.engine is None:
@@ -67,7 +73,7 @@ class DataAccessLayer:
             self.metadata = self.metadata = MetaData()  #
             self.metadata.reflect(bind=self.engine)
             self.Session = sessionmaker(bind=self.engine)
-            self.session = self.Session()
+            # self.session = self.Session()
 
     def clear_database(self, askConfirmation=True):
         """Deletes all tables from database connected by engine
