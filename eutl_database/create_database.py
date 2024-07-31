@@ -14,9 +14,9 @@ def export_database(dal, dir_out):
         df = pd.read_sql(query.statement, query.session.bind)
         return df
 
-    get_query_df(session.query(Account)).drop(
-        ["accountIDEutl", "accountIDTransactions"], axis=1
-    ).to_csv(dir_out + "account.csv", index=False)
+    get_query_df(session.query(Account)).drop(["accountIDEutl"], axis=1).to_csv(
+        dir_out + "account.csv", index=False
+    )
     get_query_df(session.query(AccountHolder)).to_csv(
         dir_out + "account_holder.csv", index=False
     )

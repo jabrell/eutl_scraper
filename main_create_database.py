@@ -3,10 +3,14 @@ from eutl_database import (
     export_database,
     link_foha_installations,
     DataAccessLayer,
+    restore_missing_transaction_accounts,
 )
 
 
 if __name__ == "__main__":
+    import logging
+
+    logging.basicConfig(level=logging.INFO)
     # directory for csv tables to be imported into the database
     dir_tables = "./data/tables/"
     dir_final = "./data/final/"  # final directory for database export
@@ -18,11 +22,21 @@ if __name__ == "__main__":
         user="JanAdmin", host="localhost", db="eutl2024_build", passw="1234"
     )
     dal = DataAccessLayer(**localConnectionSettings)
+
+    # empty the database
     dal.clear_database(askConfirmation=False)
     create_database(dal, dir_tables)
 
+    # this has only to be done once after database creation, afterwards run
+    # data augmentation again
+    # df_map_21_to_23, not_matchable = restore_missing_transaction_accounts(
+    #     dal, fn_2021="./data/additional/eutl_2021.zip", dir_out="./data/additional/"
+    # )
+
     # try to establish the mapping between current and former operator holding accounts
-    link_foha_installations(dal.Session(), fn_out=fn_ohaMatching)
+    link_foha_installations(
+        dal.Session(), fn_out=fn_ohaMatching, overwrite_exiting=True
+    )
 
     # export the database
     export_database(dal, dir_final)

@@ -20,6 +20,7 @@ notebook = "^7.1.2"
 lxml = "^5.2.0"
 xlrd = "^2.0.1"
 sqlalchemy = "^2.0.30"
+tqdm = "^4.66.4"
 
 
 [build-system]
