@@ -50,7 +50,12 @@ NEW_ACC = [
 
 
 def create_csv_tables(
-    dir_in, dir_out, fn_coordinates=None, fn_nace=None, fn_nace_codes=None
+    dir_in,
+    dir_out,
+    fn_coordinates=None,
+    fn_nace=None,
+    fn_nace_codes=None,
+    dir_additional: str = None,
 ):
     """Create all tables
     :param dir_in: <string> directory with parsed data
@@ -60,6 +65,9 @@ def create_csv_tables(
                 if None, NACE codes are not processed
     :param fn_nace_codes: <string> name of file with nace classification scheme
                 If None, classification lookup not exported
+    :param dir_additional: <string> path to directory with additional data
+                if provided, impute missing accounts into transactions
+                data from 2021 transactions
     """
     print("####### Create lookup tables")
     create_tables_lookup(dir_in, dir_out, fn_nace_codes=fn_nace_codes)
@@ -75,8 +83,8 @@ def create_csv_tables(
     create_table_accountHolder(dir_in, dir_out)
     create_table_account(dir_in, dir_out)
 
-    print("####### Create transcation tables")
-    create_table_transaction(dir_in, dir_out)
+    print("####### Create transaction tables")
+    create_table_transaction(dir_in, dir_out, dir_additional=dir_additional)
 
     print("####### Add ESD information")
     create_esd_tables(dir_in, dir_out, save_data=True)
@@ -490,17 +498,24 @@ def create_table_installation(dir_in, dir_out, fn_coordinates=None, fn_nace=None
             dtype={"nace15": "str", "nace20": "str", "nace": "str"},
         ).drop_duplicates()
         df_.rename(
-            columns={"id": "id_merge", "nace15": "nace15_id", "nace20": "nace20_id", "nace": "nace_id"},
-            inplace=True
-            )
+            columns={
+                "id": "id_merge",
+                "nace15": "nace15_id",
+                "nace20": "nace20_id",
+                "nace": "nace_id",
+            },
+            inplace=True,
+        )
         # in carbon leakage list installation ids for Northern Ireland (XI) use GB as prefix
-        df_inst_to_tbl['id_merge'] = df_inst_to_tbl.id.str.replace('XI_', 'GB_', regex=False)
+        df_inst_to_tbl["id_merge"] = df_inst_to_tbl.id.str.replace(
+            "XI_", "GB_", regex=False
+        )
         df_inst_to_tbl = df_inst_to_tbl.merge(df_, on="id_merge", how="left")
-        df_inst_to_tbl.drop('id_merge', axis=1, inplace=True)
+        df_inst_to_tbl.drop("id_merge", axis=1, inplace=True)
         # for aircraft add the nace code 51 (Air transport)
-        df_inst_to_tbl.loc[
-            df_inst_to_tbl.isAircraftOperator, "nace_id"
-        ] = df_inst_to_tbl.loc[df_inst_to_tbl.isAircraftOperator, "nace_id"].fillna(51)
+        df_inst_to_tbl.loc[df_inst_to_tbl.isAircraftOperator, "nace_id"] = (
+            df_inst_to_tbl.loc[df_inst_to_tbl.isAircraftOperator, "nace_id"].fillna(51)
+        )
 
     # add created timestamp
     df_inst_to_tbl["created_on"] = datetime.now()
@@ -813,11 +828,16 @@ def create_table_account(dir_in, dir_out, useOrbis=True):
     return
 
 
-def create_table_transaction(dir_in, dir_out):
+def create_table_transaction(
+    dir_in: str, dir_out: str, dir_additional: str | None = None
+):
     """Create transaction table. This has to be run after all
        all other tables have been created.
     :param dir_data: <string> directory with parsed data
-    :param dir_out: <string> output directory"""
+    :param dir_out: <string> output directory
+    :param dir_additional: <string> directory with additional data
+        if provided the 2021 data is used to update the transaction table
+    """
     # load data: we need original transaction data as well as
     # as the account table with new account ID. Also load already
     # created project table to (eventually) add further projects.
@@ -958,6 +978,39 @@ def create_table_transaction(dir_in, dir_out):
     # add information on trading system
     df["tradingSystem"] = "euets"
 
+    # add information from 2021 data
+    if dir_additional is not None:
+        # creating a mapping from transactionID to accountID inferred from
+        # 2021 data
+        map_acq = (
+            pd.read_csv(
+                f"{dir_additional}/transaction_acquiring_missing.zip",
+                usecols=["transactionID", "acquiringAccountID_2024"],
+            )
+            .drop_duplicates(subset=["transactionID", "acquiringAccountID_2024"])
+            .dropna(subset=["acquiringAccountID_2024"])
+            .set_index("transactionID")["acquiringAccountID_2024"]
+            .to_dict()
+        )
+        map_trans = (
+            pd.read_csv(
+                f"{dir_additional}/transaction_transferring_missing.zip",
+                usecols=["transactionID", "transferringAccountID_2024"],
+            )
+            .drop_duplicates(subset=["transactionID", "transferringAccountID_2024"])
+            .dropna(subset=["transferringAccountID_2024"])
+            .set_index("transactionID")["transferringAccountID_2024"]
+            .to_dict()
+        )
+        # fill missing with the mapping
+        df = df.assign(
+            acquiringAccount_id=lambda x: x["acquiringAccount_id"].fillna(
+                x["transactionID"].map(map_acq)
+            ),
+            transferringAccount_id=lambda x: x["transferringAccount_id"].fillna(
+                x["transactionID"].map(map_trans)
+            ),
+        )
     # save to csv
     df.to_csv(dir_out + "transactionBlocks.csv", index=False, encoding="utf-8")
     return

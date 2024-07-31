@@ -68,6 +68,8 @@ class DataAccessLayer:
                 self.conn_string,
                 echo=self.echo,  # encoding=self.encoding
                 # client_encoding=self.encoding,
+                # pool_size=20,
+                max_overflow=-1,
             )
             self.Base.metadata.create_all(self.engine)
             self.metadata = self.metadata = MetaData()  #
@@ -107,7 +109,7 @@ class DataAccessLayer:
         :param df: <pd.DataFrame> with data
         :param obj: <ORM object>
         :param update: <boolean> True to update existing rows
-        :param bulk_insert: <boolean> True for buli insert of intems
+        :param bulk_insert: <boolean> True for bulk insert of items
         :parma verbose: <boolean> to print all keys not inserted
         """
         printed = False
@@ -122,7 +124,8 @@ class DataAccessLayer:
             pk = {k: v for k, v in item.items() if k in pk_names}
             exists = False
             try:
-                qry = self.session.query(obj).filter_by(**pk)
+                with self.session as session:
+                    qry = session.query(obj).filter_by(**pk)
                 exists = qry.count() > 0
             except ProgrammingError:
                 pass
@@ -141,10 +144,13 @@ class DataAccessLayer:
             if bulk_insert:
                 to_add.append(obj_to_insert)
             else:
-                self.session.add(obj_to_insert)
+                with self.session as session:
+                    session.add(obj_to_insert)
+                    session.commit()
         if bulk_insert:
-            self.session.add_all(to_add)
-        self.session.commit()
+            with self.session as session:
+                session.add_all(to_add)
+                session.commit()
 
     def insert_df_large(
         self,

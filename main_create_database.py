@@ -6,11 +6,6 @@ from eutl_database import (
     restore_missing_transaction_accounts,
 )
 
-from zipfile import ZipFile
-import pandas as pd
-from tqdm import tqdm
-from eutl_database.model import Account, Transaction
-
 
 if __name__ == "__main__":
     import logging
@@ -29,17 +24,19 @@ if __name__ == "__main__":
     dal = DataAccessLayer(**localConnectionSettings)
 
     # empty the database
-    # dal.clear_database(askConfirmation=False)
-    # create_database(dal, dir_tables)
+    dal.clear_database(askConfirmation=False)
+    create_database(dal, dir_tables)
 
     # this has only to be done once after database creation, afterwards run
     # data augmentation again
-    df_map_21_to_23, not_matchable = restore_missing_transaction_accounts(
-        dal, fn_2021="./data/additional/eutl_2021.zip", dir_out="./data/additional/"
-    )
-    print("here")
+    # df_map_21_to_23, not_matchable = restore_missing_transaction_accounts(
+    #     dal, fn_2021="./data/additional/eutl_2021.zip", dir_out="./data/additional/"
+    # )
+
     # try to establish the mapping between current and former operator holding accounts
-    link_foha_installations(dal.Session(), fn_out=fn_ohaMatching)
+    link_foha_installations(
+        dal.Session(), fn_out=fn_ohaMatching, overwrite_exiting=True
+    )
 
     # export the database
     export_database(dal, dir_final)
