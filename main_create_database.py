@@ -35,7 +35,7 @@ if __name__ == "__main__":
 
     # try to establish the mapping between current and former operator holding accounts
     link_foha_installations(
-        dal.Session(), fn_out=fn_ohaMatching, overwrite_exiting=True
+        dal.Session(), fn_out=fn_ohaMatching, overwrite_exiting=False
     )
 
     # export the database

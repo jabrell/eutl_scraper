@@ -54,7 +54,7 @@ def get_installation_coordinates_google(
     """
     # get installation data, excluding aircrafts
     df_in = pd.read_csv(dir_in + "installations.csv").query(
-        "activity != '10-Aircraft operator activities'"
+        "activity != '10-Aircraft operator activities' and activity != '50-Maritime operator activities'"
     )
 
     # if a file is provided and if we do not ignore it, get already existing

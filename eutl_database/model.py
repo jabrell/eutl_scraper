@@ -163,6 +163,7 @@ class Installation(Base):
     monitoringFirstYear = Column(String(250))
     permitDateExpiry = Column(DateTime())
     isAircraftOperator = Column(Boolean())
+    isMaritimeOperator = Column(Boolean())
     ec748_2009Code = Column(String(100))
     permitDateEntry = Column(DateTime())
     mainAddress = Column(String(250))
@@ -181,6 +182,13 @@ class Installation(Base):
     chEntitlement = Column(Integer())
     created_on = Column(DateTime(), default=datetime.now)
     updated_on = Column(DateTime(), default=datetime.now, onupdate=datetime.now)
+    # for shipping companies
+    # todo add country relation
+    shippingCompanyCountry = Column(String(10))
+    shippingCompanyType = Column(String(100))
+    shippingCompany = Column(String(100))
+    imoID = Column(String(50))
+    region = Column(String(50))
 
     # relationships
     activityType = relationship(
