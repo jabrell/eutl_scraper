@@ -386,6 +386,7 @@ map_activity = {
     45: "Capture of greenhouse gases under Directive 2009/31/EC",
     46: "Transport of greenhouse gases under Directive 2009/31/EC",
     47: "Storage of greenhouse gases under Directive 2009/31/EC",
+    50: "Maritime operator activities",
     1: "Combustion installations with a rated thermal input exceeding 20 MW",
     2: "Mineral oil refineries",
     3: "Coke ovens",

@@ -1,6 +1,10 @@
 import scrapy
 from scrapy.loader import ItemLoader
-from eutl_scraper.items import EsdTransactionItem, EsdAllocationItem, EsdTransactionBlockItem
+from eutl_scraper.items import (
+    EsdTransactionItem,
+    EsdAllocationItem,
+    EsdTransactionBlockItem,
+)
 import urllib.parse
 import sys
 
@@ -49,14 +53,21 @@ class EsdTransactionSpider(scrapy.Spider):
             "nextList": "Next>",
         }
         self.start_urls = [
-            f"{self.url_transaction_overview}?{urllib.parse.urlencode(self.params_transaction_search)}"]
+            f"{self.url_transaction_overview}?{urllib.parse.urlencode(self.params_transaction_search)}"
+        ]
         super().__init__(**kwargs)  # python3
 
     def parse(self, response):
         # update maximum number of pages (corrected for 0 indexing)
         if not self.max_pages:
-            self.max_pages = int(response.css(
-                "input[name='resultList.lastPageNumber']").attrib["value"]) - 1
+            self.max_pages = (
+                int(
+                    response.css("input[name='resultList.lastPageNumber']").attrib[
+                        "value"
+                    ]
+                )
+                - 1
+            )
 
         # get table with transaction overview and process each row
         rows = response.css("table#tblTransactionSearchResult>tr")
@@ -72,38 +83,49 @@ class EsdTransactionSpider(scrapy.Spider):
             "acquiringMemberState",
             "acquiringYear",
             "acquiringAccountIdentifier",
-            "amount"]
+            "amount",
+        ]
 
         for row in rows[2:]:
-            l = ItemLoader(item=EsdTransactionItem(),
-                           selector=row, response=response)
+            l = ItemLoader(item=EsdTransactionItem(), selector=row, response=response)
             for i, c in enumerate(cols):
                 l.add_css(c, f"td:nth-child({i+1})>span.classictext::text")
-                transactionID = row.css(
-                    "td:nth-child(1)>span.classictext::text").get().strip()
-                transactionType = row.css(
-                    "td:nth-child(2)>span.classictext::text").get().strip()
-                transactionDate = row.css(
-                    "td:nth-child(3)>span.classictext::text").get().strip()
+                transactionID = (
+                    row.css("td:nth-child(1)>span.classictext::text").get().strip()
+                )
+                transactionType = (
+                    row.css("td:nth-child(2)>span.classictext::text").get().strip()
+                )
+                transactionDate = (
+                    row.css("td:nth-child(3)>span.classictext::text").get().strip()
+                )
                 # extraction of link to transaction blocks and parse page
                 url = response.urljoin(row.css("a.listlink::attr(href)").get())
-                yield response.follow(url, callback=self.parse_transaction_blocks,
-                                      meta={"transactionID": transactionID,
-                                            "transactionDate": transactionDate,
-                                            "transactionType": transactionType,
-                                            "transactionURL": url,
-                                            "isFirstPage": True
-                                            })
+                yield response.follow(
+                    url,
+                    callback=self.parse_transaction_blocks,
+                    meta={
+                        "transactionID": transactionID,
+                        "transactionDate": transactionDate,
+                        "transactionType": transactionType,
+                        "transactionURL": url,
+                        "isFirstPage": True,
+                    },
+                )
             yield l.load_item()
 
         # navigate to next page of transaction overview
-        self.params_transaction_search["resultList.currentPageNumber"] = self.next_page_number
+        self.params_transaction_search["resultList.currentPageNumber"] = (
+            self.next_page_number
+        )
         next_page = f"{self.url_transaction_overview}?{urllib.parse.urlencode(self.params_transaction_search)}"
         if self.next_page_number <= self.max_pages:
             self.next_page_number += 1
-            if (self.next_page_number-1) % 100 == 0:
-                print("Process transaction overview %d of %d" %
-                      (self.next_page_number, self.max_pages))
+            if (self.next_page_number - 1) % 100 == 0:
+                print(
+                    "Process transaction overview %d of %d"
+                    % (self.next_page_number, self.max_pages)
+                )
             yield response.follow(next_page, callback=self.parse)
 
     def parse_transaction_blocks(self, response):
@@ -122,12 +144,13 @@ class EsdTransactionSpider(scrapy.Spider):
             "lulucfActivity",
             "projectID",
             "projectTrack",
-            "expiryDate"
+            "expiryDate",
         ]
         rows = response.css("table#tblTransactionBlocksInformation>tr")
         for row in rows[2:]:
-            l = ItemLoader(item=EsdTransactionBlockItem(),
-                           selector=row, response=response)
+            l = ItemLoader(
+                item=EsdTransactionBlockItem(), selector=row, response=response
+            )
             # get meta information from header table
             # create identifiers
             l.add_value("transactionID", response.meta["transactionID"])
@@ -139,22 +162,25 @@ class EsdTransactionSpider(scrapy.Spider):
             yield l.load_item()
 
         if isFirstPage:
-            nextButton = response.css(
-                "input[name='resultList.lastPageNumber']")
+            nextButton = response.css("input[name='resultList.lastPageNumber']")
             if nextButton:
                 max_pages = int(nextButton.attrib["value"])
-                print("___________________________________________________")
-                print(max_pages)
-                print("___________________________________________________")
                 for i in range(1, max_pages):
-                    url = response.url + "&resultList.currentPageNumber=%d&nextList=Next>" % i
-                    yield response.follow(url, callback=self.parse_transaction_blocks,
-                                          meta={"transactionID": response.meta["transactionID"],
-                                                "transactionDate": response.meta["transactionDate"],
-                                                "transactionType": response.meta["transactionType"],
-                                                "transactionURL": url,
-                                                "isFirstPage": False
-                                                })
+                    url = (
+                        response.url
+                        + "&resultList.currentPageNumber=%d&nextList=Next>" % i
+                    )
+                    yield response.follow(
+                        url,
+                        callback=self.parse_transaction_blocks,
+                        meta={
+                            "transactionID": response.meta["transactionID"],
+                            "transactionDate": response.meta["transactionDate"],
+                            "transactionType": response.meta["transactionType"],
+                            "transactionURL": url,
+                            "isFirstPage": False,
+                        },
+                    )
 
 
 class EsdAllocationSpider(scrapy.Spider):
@@ -169,27 +195,36 @@ class EsdAllocationSpider(scrapy.Spider):
         "search": "Search",
         "currentSortSettings": "",
         "resultList.currentPageNumber": 0,
-        "nextList": "Next>"
+        "nextList": "Next>",
     }
 
-    start_urls = [
-        f"{base_url}?{urllib.parse.urlencode(params_search)}"]
+    start_urls = [f"{base_url}?{urllib.parse.urlencode(params_search)}"]
 
-    def __init__(self,  **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def parse(self, response):
         if not self.max_pages:
-            self.max_pages = int(response.css(
-                "input[name='resultList.lastPageNumber']").attrib["value"]) - 1
+            self.max_pages = (
+                int(
+                    response.css("input[name='resultList.lastPageNumber']").attrib[
+                        "value"
+                    ]
+                )
+                - 1
+            )
 
-        cols = ["memberState", "year", "accountStatus",
-                "accountIdentifier", "allocated"]
+        cols = [
+            "memberState",
+            "year",
+            "accountStatus",
+            "accountIdentifier",
+            "allocated",
+        ]
 
         rows = response.css("table#tblAllocations>tr")
         for row in rows[2:]:
-            l = ItemLoader(item=EsdAllocationItem(),
-                           selector=row, response=response)
+            l = ItemLoader(item=EsdAllocationItem(), selector=row, response=response)
             for i, c in enumerate(cols):
                 l.add_css(c, f"td:nth-child({i+1})>font.classictext::text")
             yield l.load_item()
@@ -200,9 +235,11 @@ class EsdAllocationSpider(scrapy.Spider):
         next_page = f"{self.base_url}?{urllib.parse.urlencode(self.params_search)}"
         if self.next_page_number <= self.max_pages:
             self.next_page_number += 1
-            if (self.next_page_number-1) % 100 == 0:
-                print("Process transaction overview %d of %d" %
-                      (self.next_page_number, self.max_pages))
+            if (self.next_page_number - 1) % 100 == 0:
+                print(
+                    "Process transaction overview %d of %d"
+                    % (self.next_page_number, self.max_pages)
+                )
             yield response.follow(next_page, callback=self.parse)
 
 
@@ -218,29 +255,42 @@ class EsdComplianceSpider(scrapy.Spider):
         "search": "Search",
         "currentSortSettings": "",
         "resultList.currentPageNumber": 0,
-        "nextList": "Next>"
+        "nextList": "Next>",
     }
 
-    start_urls = [
-        f"{base_url}?{urllib.parse.urlencode(params_search)}"]
+    start_urls = [f"{base_url}?{urllib.parse.urlencode(params_search)}"]
 
-    def __init__(self,  **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def parse(self, response):
         if not self.max_pages:
-            self.max_pages = int(response.css(
-                "input[name='resultList.lastPageNumber']").attrib["value"]) - 1
+            self.max_pages = (
+                int(
+                    response.css("input[name='resultList.lastPageNumber']").attrib[
+                        "value"
+                    ]
+                )
+                - 1
+            )
 
-        cols = ["memberState", "year", "accountStatus",
-                "accountIdentifier", "allocated", "verified", "penalty",
-                "surrenderedAea", "surrenderedCredits", "balance",
-                "compliance"]
+        cols = [
+            "memberState",
+            "year",
+            "accountStatus",
+            "accountIdentifier",
+            "allocated",
+            "verified",
+            "penalty",
+            "surrenderedAea",
+            "surrenderedCredits",
+            "balance",
+            "compliance",
+        ]
 
         rows = response.css("table#tblComplianceDashboard>tr")
         for row in rows[2:]:
-            l = ItemLoader(item=EsdComplianceItem(),
-                           selector=row, response=response)
+            l = ItemLoader(item=EsdComplianceItem(), selector=row, response=response)
             for i, c in enumerate(cols):
                 l.add_css(c, f"td:nth-child({i+1})>font.classictext::text")
             yield l.load_item()
@@ -251,9 +301,11 @@ class EsdComplianceSpider(scrapy.Spider):
         next_page = f"{self.base_url}?{urllib.parse.urlencode(self.params_search)}"
         if self.next_page_number <= self.max_pages:
             self.next_page_number += 1
-            if (self.next_page_number-1) % 100 == 0:
-                print("Process transaction overview %d of %d" %
-                      (self.next_page_number, self.max_pages))
+            if (self.next_page_number - 1) % 100 == 0:
+                print(
+                    "Process transaction overview %d of %d"
+                    % (self.next_page_number, self.max_pages)
+                )
             yield response.follow(next_page, callback=self.parse)
 
 
@@ -276,29 +328,40 @@ class EsdEntitlementSpider(scrapy.Spider):
         "search": "Search",
         "currentSortSettings": "",
         "resultList.currentPageNumber": 0,
-        "nextList": "Next>"
+        "nextList": "Next>",
     }
 
-    start_urls = [
-        f"{base_url}?{urllib.parse.urlencode(params_search)}"]
+    start_urls = [f"{base_url}?{urllib.parse.urlencode(params_search)}"]
 
-    def __init__(self,  **kwargs):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
     def parse(self, response):
         if not self.max_pages:
-            self.max_pages = int(response.css(
-                "input[name='resultList.lastPageNumber']").attrib["value"]) - 1
+            self.max_pages = (
+                int(
+                    response.css("input[name='resultList.lastPageNumber']").attrib[
+                        "value"
+                    ]
+                )
+                - 1
+            )
 
-        cols = ["transactionID", "transactionType", "transactionDate",
-                "transferringMemberState", "transferringYear",
-                "acquiringMemberState", "acquiringYear",
-                "transactionStatus", "amount"]
+        cols = [
+            "transactionID",
+            "transactionType",
+            "transactionDate",
+            "transferringMemberState",
+            "transferringYear",
+            "acquiringMemberState",
+            "acquiringYear",
+            "transactionStatus",
+            "amount",
+        ]
 
         rows = response.css("table#tblEsdTransactions>tr")
         for row in rows[2:]:
-            l = ItemLoader(item=EsdEntitlementItem(),
-                           selector=row, response=response)
+            l = ItemLoader(item=EsdEntitlementItem(), selector=row, response=response)
             for i, c in enumerate(cols):
                 l.add_css(c, f"td:nth-child({i+1})>font.classictext::text")
             yield l.load_item()
@@ -309,7 +372,9 @@ class EsdEntitlementSpider(scrapy.Spider):
         next_page = f"{self.base_url}?{urllib.parse.urlencode(self.params_search)}"
         if self.next_page_number <= self.max_pages:
             self.next_page_number += 1
-            if (self.next_page_number-1) % 100 == 0:
-                print("Process transaction overview %d of %d" %
-                      (self.next_page_number, self.max_pages))
+            if (self.next_page_number - 1) % 100 == 0:
+                print(
+                    "Process transaction overview %d of %d"
+                    % (self.next_page_number, self.max_pages)
+                )
             yield response.follow(next_page, callback=self.parse)

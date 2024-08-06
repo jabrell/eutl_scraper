@@ -471,6 +471,13 @@ def create_table_installation(dir_in, dir_out, fn_coordinates=None, fn_nace=None
         "longitude": "longitudeEutl",
         "euEntitlement": "euEntitlement",
         "chEntitlement": "chEntitlement",
+        # Maritime operators
+        "imo_id": "imoID",
+        "shippingCompany": "shippingCompany",
+        "shippingCompanyType": "shippingCompanyType",
+        "shippingCompanyCountry": "shippingCompanyCountry",
+        "region": "region",
+        "isMaritimeOperator": "isMaritimeOperator",
     }
     df_inst_to_tbl = df_inst[
         [c for c in cols_inst.keys() if c in df_inst.columns]
@@ -514,7 +521,15 @@ def create_table_installation(dir_in, dir_out, fn_coordinates=None, fn_nace=None
         df_inst_to_tbl.drop("id_merge", axis=1, inplace=True)
         # for aircraft add the nace code 51 (Air transport)
         df_inst_to_tbl.loc[df_inst_to_tbl.isAircraftOperator, "nace_id"] = (
-            df_inst_to_tbl.loc[df_inst_to_tbl.isAircraftOperator, "nace_id"].fillna(51)
+            df_inst_to_tbl.loc[df_inst_to_tbl.isAircraftOperator, "nace_id"].fillna(
+                51.00
+            )
+        )
+        # for maritime add the nace code 52 (Water transport)
+        df_inst_to_tbl.loc[df_inst_to_tbl.isMaritimeOperator, "nace_id"] = (
+            df_inst_to_tbl.loc[df_inst_to_tbl.isMaritimeOperator, "nace_id"].fillna(
+                50.00
+            )
         )
 
     # add created timestamp
@@ -628,7 +643,7 @@ def create_table_surrender(dir_in, dir_out):
         map_registryCode_inv
     )
 
-    # need to add an primary key for surrendendering rows
+    # need to add an primary key for surrendering rows
     # here we simply use the index
     df_surr_to_tbl["id"] = df_surr_to_tbl.index
 
