@@ -174,6 +174,16 @@
 %\pagebreak
 \section*{Updates}
 \begin{itemize}
+	\item 06.08.2024
+	\begin{itemize}
+		\item Inclusion of maritime operator accounts. Correspondingly, the field list of the installation table has been extended.
+		\item Inclusion of account identifiers that are used in the transaction data on the EUTL page.
+		\item Since 2022 the transaction data were missing a lot of acquiring accounts and some transferring accounts in the data provided by the European Commission. In the 2021 data, this information was still available. We inserted the missing account information from the 2021 dataset into the most recent (and future) version.
+	\end{itemize}
+	\item 11.05.2024
+	\begin{itemize}
+		\item Database update to include transaction data up to and including September 2019 and compliance data up to 2023.
+	\end{itemize}
 	\item 09.05.2023
 	\begin{itemize}
 		\item Database update to include transaction data up to and including April 2019 and compliance data up to 2022. 
@@ -282,6 +292,7 @@ I further include NACE codes of each installation based on the leakage assessmen
 		monitoringFirstYear & varchar & Aircraft: First year when monitoring plan becomes applicable \\
 		permitDateExpiry & timestamp & Date when permit identifier becomes invalid \\
 		isAircraftOperator & bool  & Indicator whether the installation is an aircraft operator \\
+		isMaritimeOperator & bool  & Indicator whether the installation is an maritime operator \\
 		ec748\_2009Code & varchar & Aircraft: Identifier of aircraft operator under EC 748/2009 regulation (inclusion of aircrafts in the EUETS) \\
 		permitDateEntry & timestamp & Date when permit identifier was create \\
 		addressMain & varchar & Main address line of installation \\
@@ -299,6 +310,11 @@ I further include NACE codes of each installation based on the leakage assessmen
 		entitlement & int4  & Entitlement for credits created from flexible mechanisms \\
 		chEntitlement & int4  & Entitlement for credits created from flexible mechanisms created over Swiss registry. \\
 		euEntitlement & int4  & Entitlement for credits created from flexible mechanisms created over EUTL\\
+		shippingCompany & varchar & Maritime only: Name of the shipping company\\
+		shippingCompanyType & varchar &  Maritime only: Type of shipping company.\\
+		shippingCompanyCountry & varchar &  Maritime only: Country of the shipping company.\\
+		imoID & varchar &  Maritime only: Identifier of shipping company under the International Maritime Organization\\
+		region & varchar &  Maritime only: Region of the shipping company\\
 		\bottomrule
 		\bottomrule
 	\end{tabular*}%
@@ -408,7 +424,8 @@ The JRC matched company registration numbers to the Bureau van Dyke (BvD) Orbis 
 		name  & varchar & Name of account \\
 		accountIDEutl& varchar & Account identifier as used in the account data of the EUTL \\
 		accountIDTransactions& varchar & Account identifier as used in the transaction data of the EUTL \\
-		accountIDESD& varchar & Account identifier as used in the Effort Sharing data (this is composed of the valid year and the memberstate identifier) \\
+		accountIDESD& varchar & Account identifier as used in the Effort Sharing data  \\
+		& &(composed of the valid year and the memberstate identifier)\\
 		yearValid& varchar & Only for ESD accounts: The year for which the ESD account is valid \\
 		tradingSystem & varchar & Trading system in which the account is registered\\
 		registry\_id & varchar & 2 letter ISO code for registry \\
@@ -628,7 +645,9 @@ In total 12814 out of 13016 fOHAs are matched to installations. Most fOHAs are m
 		45    & Capture of greenhouse gases under Directive 2009/31/EC & Carbon Capture and Storage \\
 		46    & Transport of greenhouse gases under Directive 2009/31/EC & Carbon Capture and Storage \\
 		47    & Storage of greenhouse gases under Directive 2009/31/EC & Carbon Capture and Storage \\
+		50    & Maritime operator activity & Maritime\\
 		99	  & Other activity opted-in pursuant to Article 24 of Directive 2003/87/EC&	Other\\
+		1000  & Member state activity for Effort Sharing Accounting&\\
 		\bottomrule
 		\bottomrule
 	\end{tabular*}%
