@@ -241,8 +241,6 @@ class AccountSpider(scrapy.Spider):
                 "city",
                 "country",
                 "region",
-                "latitude",
-                "longitude",
                 "activity",
             ]
         else:

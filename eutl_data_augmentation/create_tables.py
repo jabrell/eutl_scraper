@@ -807,6 +807,8 @@ def create_table_account(dir_in, dir_out, useOrbis=True):
 
     df_acc.installation_id = df_acc.apply(form_id, axis=1)
 
+    # drop rows with all nan
+
     # Clean account names:
     df_acc["name"] = df_acc["name"].map(lambda x: "-".join(x.split("-")[1:])[4:])
 

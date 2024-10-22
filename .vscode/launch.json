@@ -5,6 +5,23 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Python: Launch Scrapy Spider",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "scrapy",
+      "args": [
+        "crawl",
+        "transactions",
+        "-a",
+        "start_date=01/01/2020",
+        "-a",
+        "end_date=06/01/2020",
+        "-L",
+        "INFO"
+      ],
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Python: Current File",
       "type": "debugpy",
       "request": "launch",
