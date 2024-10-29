@@ -840,6 +840,10 @@ def create_table_account(dir_in, dir_out, useOrbis=True):
     # add column to identify trading system
     df_acc["tradingSystem"] = "euets"
 
+    # TODO move this to data download
+    # Fix: This is a temporary fix to correct for the fact
+    df_acc
+
     # save to csv
     df_acc.to_csv(dir_out + "accounts.csv", index=False, encoding="utf-8")
     return

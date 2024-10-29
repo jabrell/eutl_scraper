@@ -352,6 +352,7 @@ map_registryCodes = {
     "ZW": "Zimbabwe",
     "XI": "Northern Ireland",
     "ESD": "Effort Sharing Management",
+    "ME": "Montenegro",
 }
 
 map_registryCode_inv = {v: k for k, v in map_registryCodes.items()}

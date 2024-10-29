@@ -5,20 +5,11 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "Python: Launch Scrapy Spider",
+      "name": "Python: Scrape accounts",
       "type": "debugpy",
       "request": "launch",
       "module": "scrapy",
-      "args": [
-        "crawl",
-        "transactions",
-        "-a",
-        "start_date=01/01/2020",
-        "-a",
-        "end_date=06/01/2020",
-        "-L",
-        "INFO"
-      ],
+      "args": ["crawl", "accounts", "-L", "INFO"],
       "console": "integratedTerminal"
     },
     {
@@ -32,7 +23,7 @@
       "name": "test_data_imputation",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/_jab_main_data_imputation.py",
+      "program": "${workspaceFolder}/main_data_imputation.py",
       "console": "integratedTerminal"
     },
     {

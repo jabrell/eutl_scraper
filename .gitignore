@@ -9,6 +9,7 @@ set_env.bat
 data_2023/*
 data_2023/*
 data_may_2024/*
+*_logs.txt
 
 # C extensions
 *.so
