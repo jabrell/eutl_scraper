@@ -9,5 +9,4 @@ if __name__ == "__main__":
     print("###### Parse transaction data provided by European Commission")
     df = parse_ec_transactions(fn_trans_ec, fn_file=fn_file, dir_out="./data/parsed/")
     print("###### Link transaction to account data")
-    # todo adjust to no longer fetch all links but use existing ones
     link_accounts("./data/parsed/", df=df, use_existing=True)

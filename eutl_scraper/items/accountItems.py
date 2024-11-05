@@ -55,9 +55,6 @@ class AccountItem(scrapy.Item):
     authorizedTradingVenue = scrapy.Field(
         input_processor=MapCompose(strip_values), output_processor=TakeFirst()
     )
-    nationalAdministrator = scrapy.Field(
-        input_processor=MapCompose(strip_values), output_processor=TakeFirst()
-    )
 
 
 class ContactItem(scrapy.Item):

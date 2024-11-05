@@ -46,18 +46,18 @@ class AccountSpider(scrapy.Spider):
             yield response.follow(next_page, callback=self.parse)
 
     def parse_accountDetails(self, response):
-        # determine correct field for company registration and commitment period field
-        td_commitmentPeriod = 8
-        td_companyRegistration = 9
-        for i, f in enumerate(
-            response.css(
-                "table#tblAccountGeneralInfo>tr:nth-child(2)>td>span.titlelist::text"
-            ).getall()
-        ):
-            if f.strip() == "Company Registration No":
-                td_companyRegistration = i + 1
-            elif f.strip() == "Commitment Period":
-                td_commitmentPeriod = i + 1
+        # # determine correct field for company registration and commitment period field
+        # td_commitmentPeriod = 8
+        # td_companyRegistration = 9
+        # for i, f in enumerate(
+        #     response.css(
+        #         "table#tblAccountGeneralInfo>tr:nth-child(2)>td>span.titlelist::text"
+        #     ).getall()
+        # ):
+        #     if f.strip() == "Company Registration No":
+        #         td_companyRegistration = i + 1
+        #     elif f.strip() == "Commitment Period":
+        #         td_commitmentPeriod = i + 1
 
         # get table headers
         headers = list(
@@ -71,8 +71,7 @@ class AccountSpider(scrapy.Spider):
 
         map_headers = {
             "Account Type": "accountType",
-            # todo to add
-            "National Administrator": "nationalAdministrator",
+            "National Administrator": "registry",
             "Related Installation/Aircraft Operator/Maritime Operator ID": "installationID",
             "Account Holder Name": "accountHolderName",
             "Account Status": "status",
@@ -80,7 +79,6 @@ class AccountSpider(scrapy.Spider):
             "Account Closing Date": "closingDate",
             "Commitment Period": "commitmentPeriod",
             "Company Registration No": "companyRegistrationNumber",
-            # todo to add
             "Authorised trading venue or central counterparty": "authorizedTradingVenue",
         }
         # parse account details
@@ -91,14 +89,19 @@ class AccountSpider(scrapy.Spider):
         l.add_css("registryCode", "input[name='registryCode']::attr(value)")
         for i, h in enumerate(headers):
             item_name = map_headers[h]
-            l.add_css(
-                item_name,
-                f"table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child({i+1})>span.classictext::text",
-            )
-            if item_name == "installlationID":
+            if item_name == "installationID":
+                l.add_css(
+                    item_name,
+                    f"table#tblAccountGeneralInfo>tr:nth-child({i+1})>td:nth-child(3)>a>span::text",
+                )
                 l.add_css(
                     "installationURL",
                     f"table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child({i+1})>a::attr(href)",
+                )
+            else:
+                l.add_css(
+                    item_name,
+                    f"table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child({i+1})>span.classictext::text",
                 )
         # l.add_css(
         #     "accountType",

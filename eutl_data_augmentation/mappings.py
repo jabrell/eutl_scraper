@@ -354,6 +354,7 @@ map_registryCodes = {
     "ESD": "Effort Sharing Management",
     "ME": "Montenegro",
     "RS": "Serbia",
+    "IM": "Isle of Man",
 }
 
 map_registryCode_inv = {v: k for k, v in map_registryCodes.items()}
@@ -493,12 +494,15 @@ map_trans_supp_type = {
     57: "Conversion of AAUs or RMUs into ERUs (Conversion B)",
     61: "Surrendered Allowance Conversion",
     62: "Unallocated Allowance Conversion",
+    63: "International Allocation",
     71: "Exchange",
     72: "Exchanged",
-    75: "75-AAU set aside",
+    75: "AAU set aside",
+    76: "International Transfer",
     82: "Reversal of surrender",
     84: "Reversal of Surrender Kyoto Units from AOHA",
     86: "Reverse of Excess Allocation",
+    87: "International Return of Excess Allocation",
     90: "Deletion of allowances",
     91: "Cancellation against deletion",
     92: "Reversal of Allowance Surrender",
