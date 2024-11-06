@@ -46,66 +46,105 @@ class AccountSpider(scrapy.Spider):
             yield response.follow(next_page, callback=self.parse)
 
     def parse_accountDetails(self, response):
-        # determine correct field for company registration and commitment period field
-        td_commitmentPeriod = 8
-        td_companyRegistration = 9
-        for i, f in enumerate(
-            response.css(
-                "table#tblAccountGeneralInfo>tr:nth-child(2)>td>span.titlelist::text"
-            ).getall()
-        ):
-            if f.strip() == "Company Registration No":
-                td_companyRegistration = i + 1
-            elif f.strip() == "Commitment Period":
-                td_commitmentPeriod = i + 1
+        # # determine correct field for company registration and commitment period field
+        # td_commitmentPeriod = 8
+        # td_companyRegistration = 9
+        # for i, f in enumerate(
+        #     response.css(
+        #         "table#tblAccountGeneralInfo>tr:nth-child(2)>td>span.titlelist::text"
+        #     ).getall()
+        # ):
+        #     if f.strip() == "Company Registration No":
+        #         td_companyRegistration = i + 1
+        #     elif f.strip() == "Commitment Period":
+        #         td_commitmentPeriod = i + 1
+
+        # get table headers
+        headers = list(
+            map(
+                lambda x: x.strip(),
+                response.css(
+                    "table#tblAccountGeneralInfo>tr:nth-child(2)>td>span.titlelist::text"
+                ).getall(),
+            )
+        )
+
+        map_headers = {
+            "Account Type": "accountType",
+            "National Administrator": "registry",
+            "Related Installation/Aircraft Operator/Maritime Operator ID": "installationID",
+            "Account Holder Name": "accountHolderName",
+            "Account Status": "status",
+            "Account Opening Date": "openingDate",
+            "Account Closing Date": "closingDate",
+            "Commitment Period": "commitmentPeriod",
+            "Company Registration No": "companyRegistrationNumber",
+            "Authorised trading venue or central counterparty": "authorizedTradingVenue",
+        }
         # parse account details
         l = ItemLoader(item=AccountItem(), response=response)
         l.add_value("accountURL", response.url)
         l.add_css("accountID", "input[name='accountID']::attr(value)")
         l.add_css("accountName", "font.bordertbheadfont::text")
         l.add_css("registryCode", "input[name='registryCode']::attr(value)")
-        l.add_css(
-            "accountType",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(1)>span.classictext::text",
-        )
-        l.add_css(
-            "registry",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(2)>span.classictext::text",
-        )
-        l.add_css(
-            "installationID",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(3)>a>span::text",
-        )
-        l.add_css(
-            "installationURL",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(3)>a::attr(href)",
-        )
-        l.add_css(
-            "accountHolderName",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(4)>span.classictext::text",
-        )
-        l.add_css(
-            "status",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(5)>span.classictext::text",
-        )
-        l.add_css(
-            "openingDate",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(6)>span.classictext::text",
-        )
-        l.add_css(
-            "closingDate",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(7)>span.classictext::text",
-        )
-        l.add_css(
-            "commitmentPeriod",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(%d)>span.classictext::text"
-            % td_commitmentPeriod,
-        )
-        l.add_css(
-            "companyRegistrationNumber",
-            "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(%d)>span.classictext::text"
-            % td_companyRegistration,
-        )
+        for i, h in enumerate(headers):
+            item_name = map_headers[h]
+            if item_name == "installationID":
+                l.add_css(
+                    item_name,
+                    f"table#tblAccountGeneralInfo>tr:nth-child({i+1})>td:nth-child(3)>a>span::text",
+                )
+                l.add_css(
+                    "installationURL",
+                    f"table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child({i+1})>a::attr(href)",
+                )
+            else:
+                l.add_css(
+                    item_name,
+                    f"table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child({i+1})>span.classictext::text",
+                )
+        # l.add_css(
+        #     "accountType",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(1)>span.classictext::text",
+        # )
+        # l.add_css(
+        #     "registry",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(2)>span.classictext::text",
+        # )
+        # l.add_css(
+        #     "installationID",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(3)>a>span::text",
+        # )
+        # l.add_css(
+        #     "installationURL",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(3)>a::attr(href)",
+        # )
+        # l.add_css(
+        #     "accountHolderName",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(4)>span.classictext::text",
+        # )
+        # l.add_css(
+        #     "status",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(5)>span.classictext::text",
+        # )
+        # l.add_css(
+        #     "openingDate",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(6)>span.classictext::text",
+        # )
+        # l.add_css(
+        #     "closingDate",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(7)>span.classictext::text",
+        # )
+        # l.add_css(
+        #     "commitmentPeriod",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(%d)>span.classictext::text"
+        #     % td_commitmentPeriod,
+        # )
+        # l.add_css(
+        #     "companyRegistrationNumber",
+        #     "table#tblAccountGeneralInfo>tr:nth-child(3)>td:nth-child(%d)>span.classictext::text"
+        #     % td_companyRegistration,
+        # )
         yield l.load_item()
 
         # parse contact details
@@ -241,8 +280,6 @@ class AccountSpider(scrapy.Spider):
                 "city",
                 "country",
                 "region",
-                "latitude",
-                "longitude",
                 "activity",
             ]
         else:

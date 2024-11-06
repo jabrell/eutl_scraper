@@ -11,18 +11,19 @@ from scrapy.downloadermiddlewares.retry import RetryMiddleware
 from scrapy.utils.response import response_status_message
 import time
 
+
 class CustomRetryMiddleware(RetryMiddleware):
     # Custom middleware to retry if empty responses and implement
     # 1 second delay for retry
     def process_response(self, request, response, spider):
-        if request.meta.get('dont_retry', False):
+        if request.meta.get("dont_retry", False):
             return response
-        
+
         if response.status in self.retry_http_codes:
             reason = response_status_message(response.status)
             return self._retry(request, reason, spider) or response
         if b"Service temporarily unavailable. Please try again later." in response.body:
-            time.sleep(1)
+            time.sleep(5)
             reason = response_status_message("Server is timed outed")
             return self._retry(request, reason, spider) or response
         return response
@@ -72,7 +73,7 @@ class EutlScraperSpiderMiddleware:
             yield r
 
     def spider_opened(self, spider):
-        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info("Spider opened: %s" % spider.name)
 
 
 class EutlScraperDownloaderMiddleware:
@@ -119,4 +120,4 @@ class EutlScraperDownloaderMiddleware:
         pass
 
     def spider_opened(self, spider):
-        spider.logger.info('Spider opened: %s' % spider.name)
+        spider.logger.info("Spider opened: %s" % spider.name)

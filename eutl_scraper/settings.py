@@ -12,6 +12,9 @@ BOT_NAME = "eutl_scraper"
 SPIDER_MODULES = ["eutl_scraper.spiders"]
 NEWSPIDER_MODULE = "eutl_scraper.spiders"
 
+DOWNLOAD_DELAY = 0.1
+RETRY_TIMES = 3
+CONCURRENT_REQUESTS = 15
 
 # Crawl responsibly by identifying yourself (and your website) on the user-agent
 # USER_AGENT = 'eutl_scraper (+http://www.yourdomain.com)'
@@ -71,12 +74,12 @@ ITEM_PIPELINES = {
 # See https://docs.scrapy.org/en/latest/topics/autothrottle.html
 AUTOTHROTTLE_ENABLED = True
 # The initial download delay
-AUTOTHROTTLE_START_DELAY = 1
+AUTOTHROTTLE_START_DELAY = 0.1
 # The maximum download delay to be set in case of high latencies
-AUTOTHROTTLE_MAX_DELAY = 60
+AUTOTHROTTLE_MAX_DELAY = 30
 # The average number of requests Scrapy should be sending in parallel to
 # each remote server
-AUTOTHROTTLE_TARGET_CONCURRENCY = 5.0
+AUTOTHROTTLE_TARGET_CONCURRENCY = 15
 # Enable showing throttling stats for every response received:
 AUTOTHROTTLE_DEBUG = False
 

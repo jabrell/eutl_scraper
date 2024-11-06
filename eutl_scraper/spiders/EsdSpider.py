@@ -130,8 +130,8 @@ class EsdTransactionSpider(scrapy.Spider):
 
     def parse_transaction_blocks(self, response):
         isFirstPage = response.meta.get("isFirstPage", True)
-        if response.meta["transactionID"] == "EU405464":
-            print(response.url)
+        # if response.meta["transactionID"] == "EU405464":
+        #    print(response.url)
         cols = [
             "originatingRegistry",
             "unitType",

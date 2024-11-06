@@ -61,14 +61,14 @@ scrapy crawl transactions -L INFO
 To limit transaction download times and allow scrapping in chunks, it is possible to limit the time span for which transactions are downloaded using the _start_date_ and _end_date_ option.
 
 ```
-scrapy crawl transactions -a start_date=01/01/2019 -a end_date=31/01/2019 -L INFO
+scrapy crawl transactions -a start_date=01/01/2020 -a end_date=31/12/2021 -L INFO
 ```
 
 **In running the transaction spider, be aware that occasionally data are downloaded twice leading to possible duplicates in the data which are, however, difficult to identify as they get an unique transaction block identifier.**
 
 # Data imputation
 All additional data used together with a description of the source data are provided 
-in the folder *data/addtional/* To impute additional data run the main file for data imputation:
+in the folder *data/additional/* To impute additional data run the main file for data imputation:
 ```
 python main_data_imputation.py
 ```

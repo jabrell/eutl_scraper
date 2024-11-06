@@ -1,4 +1,6 @@
+import os
 import pandas as pd
+from datetime import datetime
 from .model import *
 
 
@@ -101,6 +103,16 @@ def insert_transaction_table(dal, dir_in):
         parse_dates=["date", "created_on", "updated_on"],
     )
     df_trans = df_trans.rename(columns={"tradingSystem": "tradingSystem_id"})
+    if os.path.exists(dir_in + "missing_transactions.csv"):
+        df_missing = pd.read_csv(
+            dir_in + "missing_transactions.csv",
+            low_memory=False,
+            parse_dates=["date"],
+        )
+        df_trans = pd.concat([df_trans, df_missing]).assign(
+            created_on=lambda df: df["created_on"].fillna(datetime.now()),
+            updated_on=lambda df: df["updated_on"].fillna(datetime.now()),
+        )
     int_cols = [
         "id",
         "transactionTypeSupplementary_id",

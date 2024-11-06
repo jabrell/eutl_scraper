@@ -5,6 +5,21 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "main_transactions",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main_transactions.py",
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Python: Scrape accounts",
+      "type": "debugpy",
+      "request": "launch",
+      "module": "scrapy",
+      "args": ["crawl", "accounts", "-L", "INFO"],
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Python: Current File",
       "type": "debugpy",
       "request": "launch",
@@ -15,7 +30,7 @@
       "name": "test_data_imputation",
       "type": "debugpy",
       "request": "launch",
-      "program": "${workspaceFolder}/_jab_main_data_imputation.py",
+      "program": "${workspaceFolder}/main_data_imputation.py",
       "console": "integratedTerminal"
     },
     {
