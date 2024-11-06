@@ -5,6 +5,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "main_transactions",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "${workspaceFolder}/main_transactions.py",
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Python: Scrape accounts",
       "type": "debugpy",
       "request": "launch",

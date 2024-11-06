@@ -157,7 +157,6 @@ def link_accounts(dir_in, df=None, tries=3, wait=5, use_existing=False):
             for i in acc_id_db
             if i not in df_map_existing.accountIdentifierDB.to_list()
         ]
-        print("here")
 
     # loop over all account identifiers in the transaction database and get the accountID
     def get_linked_accountID(content):
@@ -230,6 +229,7 @@ def link_accounts(dir_in, df=None, tries=3, wait=5, use_existing=False):
         assert (
             df_map.accountID.duplicated().sum() == 0
         ), "Duplicated account identifiers in mapping to transaction data"
+        res = df_map.set_index("accountIdentifierDB")["accountID"].to_dict()
 
     df_map.to_csv(fn_mapping, index=False)
 

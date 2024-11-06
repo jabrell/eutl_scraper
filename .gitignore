@@ -9,6 +9,8 @@ set_env.bat
 data_2023/*
 data_2023/*
 data_may_2024/*
+data_october_2024/*
+releases/*
 *_logs.txt
 
 # C extensions
